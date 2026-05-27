@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TextAnimate – blurIn Preview</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600&display=swap" rel="stylesheet"/>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #ede0ee;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+      font-family: 'Rubik', sans-serif;
+      color: #2d0a3a;
+    }
+
+    /* ── TABS ── */
+    .tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid #cbb8d0;
+      width: 100%;
+      justify-content: center;
+      padding-top: 32px;
+    }
+    .tab {
+      padding: 12px 28px;
+      font-size: 13px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: #a080aa;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      transition: color 0.2s, border-color 0.2s;
+      user-select: none;
+    }
+    .tab:hover { color: #7c0ead; }
+    .tab.active { color: #2d0a3a; border-bottom-color: #7c0ead; }
+
+    /* ── PANELS ── */
+    .panel { display: none; width: 100%; }
+    .panel.active { display: flex; flex-direction: column; align-items: center; }
+
+    /* ── PREVIEW ── */
+    .stage {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 48px 48px;
+    }
+
+    h1.animated-text {
+      font-family: 'Rubik', sans-serif;
+      font-weight: 400;
+      font-size: 56px;
+      line-height: 72px;
+      letter-spacing: 0;
+      color: #2d0a3a;
+      text-align: left;
+      width: 582px;
+    }
+
+    h1.animated-text .word {
+      display: inline;
+      opacity: 0;
+      filter: blur(12px);
+      animation: blurIn 0.6s ease forwards;
+    }
+    h1.animated-text .word.semi { font-weight: 600; }
+
+    @keyframes blurIn {
+      from { opacity: 0; filter: blur(12px); }
+      to { opacity: 1; filter: blur(0px); }
+    }
+
+    .badge {
+      font-size: 11px;
+      color: #b090bc;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-family: monospace;
+      margin-bottom: 32px;
+    }
+
+    .controls { margin-bottom: 56px; }
+
+    button {
+      background: #d9c4de;
+      border: 1px solid #c4a8cc;
+      color: #2d0a3a;
+      padding: 10px 24px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-family: 'Rubik', sans-serif;
+      cursor: pointer;
+      transition: background 0.2s, border-color 0.2s;
+    }
+    button:hover { background: #cbb2d4; border-color: #b090bc; }
+    button.primary { background: #7c0ead; border-color: #7c0ead; color: #fff; }
+    button.primary:hover { background: #5e0a99; }
+
+    /* ── SPECS ── */
+    .specs-wrap {
+      width: 100%;
+      max-width: 720px;
+      padding: 48px 24px 64px;
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    .spec-section h2 {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #7c0ead;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    .spec-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    .spec-table tr { border-bottom: 1px solid #d8c4de; }
+    .spec-table td { padding: 10px 8px; }
+    .spec-table td:first-child { color: #a080aa; width: 200px; }
+    .spec-table td:last-child { color: #4a1a5e; font-family: monospace; font-size: 12px; }
+
+    .spec-section p {
+      font-size: 13px;
+      color: #7a5a8a;
+      line-height: 1.7;
+      margin-bottom: 12px;
+    }
+
+    pre {
+      background: #f5eef8;
+      border: 1px solid #d0b8d8;
+      border-radius: 8px;
+      padding: 20px;
+      font-size: 12px;
+      line-height: 1.7;
+      color: #3a0a52;
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    .tag { color: #7c0ead; }
+    .attr { color: #9b30c0; }
+    .val  { color: #1a7a3a; }
+    .com  { color: #b098be; font-style: italic; }
+    .prop { color: #a0208a; }
+    .num  { color: #c05010; }
+
+    .step-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #9878a8;
+      margin-bottom: 8px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="tabs">
+    <div class="tab active" onclick="switchTab('preview')">▶ Preview</div>
+    <div class="tab" onclick="switchTab('specs')">⚙ Specs Webflow</div>
+  </div>
+
+  <!-- PREVIEW -->
+  <div class="panel active" id="panel-preview">
+    <div class="stage">
+      <h1 class="animated-text" id="text"></h1>
+    </div>
+    <p class="badge">Magic UI · TextAnimate · blurIn · Rubik · 56px</p>
+    <div class="controls">
+      <button class="primary" onclick="replay()">↺ Replay</button>
+    </div>
+  </div>
+
+  <!-- SPECS -->
+  <div class="panel" id="panel-specs">
+    <div class="specs-wrap">
+
+      <div class="spec-section">
+        <h2>1 · Tipografia</h2>
+        <table class="spec-table">
+          <tr><td>Font Family</td><td>Rubik</td></tr>
+          <tr><td>Font Weight (base)</td><td>400 — Regular</td></tr>
+          <tr><td>Font Weight (destaque)</td><td>600 — SemiBold</td></tr>
+          <tr><td>Font Size</td><td>56px</td></tr>
+          <tr><td>Line Height</td><td>72px</td></tr>
+          <tr><td>Letter Spacing</td><td>0</td></tr>
+          <tr><td>Color</td><td>#ffffff</td></tr>
+          <tr><td>Width</td><td>582px</td></tr>
+          <tr><td>Text Align</td><td>Left</td></tr>
+        </table>
+        <p style="margin-top:12px">Adicione <strong>Rubik</strong> em <code>Project Settings → Fonts → Google Fonts</code>. Importe os pesos <strong>400</strong> e <strong>600</strong>.</p>
+      </div>
+
+      <div class="spec-section">
+        <h2>2 · Segmentos com peso diferente</h2>
+        <p>Estes trechos devem ser renderizados em <strong>SemiBold (600)</strong>, os demais em Regular (400):</p>
+        <table class="spec-table">
+          <tr><td>SemiBold</td><td>"Saúde mental "</td></tr>
+          <tr><td>Regular</td><td>"para colaboradores, "</td></tr>
+          <tr><td>SemiBold</td><td>"valor real"</td></tr>
+          <tr><td>Regular</td><td>" para lideranças."</td></tr>
+        </table>
+      </div>
+
+      <div class="spec-section">
+        <h2>3 · HTML Embed no Webflow</h2>
+        <p>Adicione um bloco <strong>Embed</strong> e cole o código abaixo. Ele gera os spans automaticamente com os pesos corretos:</p>
+        <pre><span class="tag">&lt;h1</span> <span class="attr">id</span>=<span class="val">"blur-text"</span> <span class="attr">class</span>=<span class="val">"blur-heading"</span><span class="tag">&gt;&lt;/h1&gt;</span>
+
+<span class="tag">&lt;script&gt;</span>
+  <span class="com">// Segmentos: [texto, isSemiBold]</span>
+  const segments = [
+    ["Saúde mental ", true],
+    ["para colaboradores, ", false],
+    ["valor real", true],
+    [" para lideranças.", false]
+  ];
+
+  const el = document.getElementById("blur-text");
+  let delay = 0;
+
+  segments.forEach(([text, semi]) => {
+    text.split(" ").forEach(word => {
+      if (!word) return;
+      const span = document.createElement("span");
+      span.className = "blur-word" + (semi ? " semi" : "");
+      span.textContent = word + " ";
+      span.style.animationDelay = delay + "ms";
+      el.appendChild(span);
+      delay += 80;
+    });
+  });
+<span class="tag">&lt;/script&gt;</span></pre>
+      </div>
+
+      <div class="spec-section">
+        <h2>4 · CSS — Project Settings → Head Code</h2>
+        <pre><span class="tag">&lt;style&gt;</span>
+<span class="prop">.blur-heading</span> {
+  font-family: <span class="val">'Rubik'</span>, sans-serif;
+  font-weight: <span class="num">400</span>;
+  font-size: <span class="num">56px</span>;
+  line-height: <span class="num">72px</span>;
+  letter-spacing: <span class="num">0</span>;
+  color: <span class="val">#ffffff</span>;
+  width: <span class="num">582px</span>;
+  text-align: left;
+}
+
+<span class="prop">.blur-word</span> {
+  display: inline-block;
+  opacity: <span class="num">0</span>;
+  filter: blur(<span class="num">12px</span>);
+  transform: translateY(<span class="num">8px</span>);
+  animation: blurIn <span class="num">0.6s</span> ease forwards;
+}
+
+<span class="prop">.blur-word.semi</span> {
+  font-weight: <span class="num">600</span>;
+}
+
+<span class="prop">@keyframes blurIn</span> {
+  to {
+    opacity: <span class="num">1</span>;
+    filter: blur(<span class="num">0px</span>);
+    transform: translateY(<span class="num">0px</span>);
+  }
+}
+<span class="tag">&lt;/style&gt;</span></pre>
+      </div>
+
+      <div class="spec-section">
+        <h2>5 · Parâmetros da animação</h2>
+        <table class="spec-table">
+          <tr><td>Tipo</td><td>CSS @keyframes</td></tr>
+          <tr><td>Duração por palavra</td><td>0.6s</td></tr>
+          <tr><td>Easing</td><td>ease</td></tr>
+          <tr><td>Stagger entre palavras</td><td>80ms</td></tr>
+          <tr><td>Estado inicial</td><td>opacity:0, blur(12px), translateY(8px)</td></tr>
+          <tr><td>Estado final</td><td>opacity:1, blur(0), translateY(0)</td></tr>
+        </table>
+      </div>
+
+      <div class="spec-section">
+        <h2>6 · Opcional — Disparar ao entrar na viewport</h2>
+        <p>Substitua o script do passo 3 por este para animar ao rolar a página:</p>
+        <pre><span class="tag">&lt;script&gt;</span>
+  const segments = [
+    ["Saúde mental ", true],
+    ["para colaboradores, ", false],
+    ["valor real", true],
+    [" para lideranças.", false]
+  ];
+
+  const el = document.getElementById("blur-text");
+  let delay = 0;
+
+  segments.forEach(([text, semi]) => {
+    text.split(" ").forEach(word => {
+      if (!word) return;
+      const span = document.createElement("span");
+      span.className = "blur-word" + (semi ? " semi" : "");
+      span.textContent = word + " ";
+      span.style.animationDelay = delay + "ms";
+      span.style.animationPlayState = <span class="val">"paused"</span>;
+      el.appendChild(span);
+      delay += 80;
+    });
+  });
+
+  new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+      el.querySelectorAll(<span class="val">".blur-word"</span>).forEach(s => {
+        s.style.animationPlayState = <span class="val">"running"</span>;
+      });
+    }
+  }, { threshold: <span class="num">0.2</span> }).observe(el);
+<span class="tag">&lt;/script&gt;</span></pre>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    // ── Segmentos com peso correto do Figma ──
+    const segments = [
+      ["Saúde mental ", true],
+      ["para colaboradores, ", false],
+      ["valor real", true],
+      [" para lideranças.", false]
+    ];
+
+    const container = document.getElementById("text");
+
+    function buildWords() {
+      container.innerHTML = "";
+      let delay = 0;
+      // junta tudo e divide por espaço, mantendo o peso de cada trecho
+      const allWords = [];
+      segments.forEach(([text, semi]) => {
+        text.trim().split(/\s+/).forEach(word => {
+          if (word) allWords.push({ word, semi });
+        });
+      });
+      allWords.forEach(({ word, semi }, i) => {
+        const span = document.createElement("span");
+        span.className = "word" + (semi ? " semi" : "");
+        span.textContent = word;
+        span.style.animationDelay = `${delay}ms`;
+        container.appendChild(span);
+        // adiciona espaço entre palavras (exceto na última)
+        if (i < allWords.length - 1) {
+          container.appendChild(document.createTextNode(" "));
+        }
+        delay += 80;
+      });
+    }
+
+    function replay() { buildWords(); }
+
+    buildWords();
+
+    // ── Tabs ──
+    function switchTab(name) {
+      document.querySelectorAll('.tab').forEach((t, i) => {
+        t.classList.toggle('active', (i === 0 && name === 'preview') || (i === 1 && name === 'specs'));
+      });
+      document.getElementById('panel-preview').classList.toggle('active', name === 'preview');
+      document.getElementById('panel-specs').classList.toggle('active', name === 'specs');
+    }
+  </script>
+</body>
+</html>
