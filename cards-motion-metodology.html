@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Motion Preview — Metodologia</title>
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500&display=swap" rel="stylesheet"/>
+  <style>
+    * { box-sizing:border-box; margin:0; padding:0; }
+
+    body {
+      font-family:'Rubik',sans-serif;
+      background: linear-gradient(135deg, #d841aa22 0%, #71025222 100%), #f5edf8;
+      min-height:100vh;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      padding:40px 24px 64px;
+    }
+
+    /* ── Card entrance ── */
+    @keyframes riseUp {
+      from { opacity:0; transform:translateY(40px) scale(0.97); }
+      to   { opacity:1; transform:translateY(0) scale(1); }
+    }
+    .card {
+      width:302px;
+      background: rgba(255,255,255,0.91);
+      border-radius:16px;
+      box-shadow: 0 8px 40px rgba(113,2,82,0.13);
+      padding:33px 24px 28px;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      gap:0;
+      opacity:0;
+    }
+    .card.run { animation: riseUp 0.65s cubic-bezier(.34,1.15,.64,1) forwards; }
+
+    /* ── Text fade up ── */
+    @keyframes fadeUp {
+      from { opacity:0; transform:translateY(12px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .card-title {
+      font-size:24px; font-weight:500; line-height:32px;
+      color:#252432; text-align:center;
+      opacity:0;
+    }
+    .card-title.run { animation: fadeUp 0.5s ease forwards; }
+
+    .card-sub {
+      font-size:16px; font-weight:400; line-height:24px;
+      color:#473046; text-align:center;
+      margin-top:12px;
+      opacity:0;
+    }
+    .card-sub.run { animation: fadeUp 0.5s ease forwards; }
+
+    /* ── Arte container ── */
+    .arte-wrap {
+      margin-top:20px;
+      width:234px; height:172px;
+      border-radius:32px;
+      overflow:hidden;
+      opacity:0;
+    }
+    @keyframes arteFade {
+      from { opacity:0; transform:scale(0.93); }
+      to   { opacity:1; transform:scale(1); }
+    }
+    .arte-wrap.run { animation: arteFade 0.55s cubic-bezier(.34,1.2,.64,1) forwards; }
+
+    /* ── Arte3 line chart ── */
+    @keyframes drawLine { from{stroke-dashoffset:500} to{stroke-dashoffset:0} }
+    .line-path { stroke-dasharray:500; stroke-dashoffset:500; }
+    .line-path.run { animation: drawLine 1.3s ease 0.3s forwards; }
+
+    @keyframes popDot { from{opacity:0;transform:scale(0)} to{opacity:1;transform:scale(1)} }
+    .dot { opacity:0; transform-box:fill-box; transform-origin:center; }
+    .dot.run { animation: popDot 0.25s ease forwards; }
+
+    /* ── Arte4 bars ── */
+    @keyframes growBar { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+    .bar { transform-box:fill-box; transform-origin:bottom; transform:scaleY(0); }
+    .bar.run { animation: growBar 0.55s cubic-bezier(.34,1.4,.64,1) forwards; }
+
+    /* ── Arte2 rows ── */
+    @keyframes rowIn { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
+    .row { opacity:0; }
+    .row.run { animation: rowIn 0.4s ease forwards; }
+
+    /* ── Arte5 pop ── */
+    @keyframes pop { from{opacity:0;transform:scale(0.3)} to{opacity:1;transform:scale(1)} }
+    .pop { opacity:0; transform-box:fill-box; transform-origin:center; }
+    .pop.run { animation: pop 0.45s cubic-bezier(.34,1.56,.64,1) forwards; }
+
+    /* ── Layout ── */
+    .header {
+      width:100%; max-width:1320px;
+      display:flex; justify-content:space-between; align-items:center;
+      margin-bottom:40px;
+    }
+    .header p { font-size:10px; letter-spacing:.12em; text-transform:uppercase; color:#9878a8; }
+    .btn {
+      background:#991780; border:none; color:#fff;
+      padding:10px 22px; border-radius:100px;
+      font-size:12px; font-family:'Rubik',sans-serif; cursor:pointer;
+    }
+    .grid {
+      display:flex; gap:24px;
+      flex-wrap:wrap; justify-content:center;
+      max-width:1320px; width:100%;
+    }
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <p>Motion Preview — Metodologia Cards</p>
+  <button class="btn" onclick="replay()">↺ Replay</button>
+</div>
+
+<div class="grid">
+
+  <!-- Card 1: Arte4 -->
+  <div class="card" id="card0">
+    <div class="card-title" id="title0">Psicologia baseada em evidências (PBE)</div>
+    <div class="card-sub"   id="sub0">Para resultados mensuráveis e sustentáveis.</div>
+    <div class="arte-wrap"  id="arte0">
+      <svg width="234" height="172" viewBox="0 0 234 172" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="234" height="172" rx="32" fill="white"/>
+        <rect x="18" y="16" width="108" height="9" rx="4.5" fill="#991780"/>
+        <rect x="18" y="29" width="72" height="6" rx="3" fill="#DFC1D7" opacity="0.8"/>
+        <rect x="162" y="14" width="54" height="34" rx="8" fill="#F3E8F0"/>
+        <rect x="168" y="22" width="38" height="6" rx="3" fill="#991780" opacity="0.5"/>
+        <rect x="172" y="32" width="28" height="5" rx="2.5" fill="#991780" opacity="0.3"/>
+        <rect x="12" y="52" width="210" height="84" rx="8" fill="#F3E8F0" stroke="#DFC1D7" stroke-width="0.9"/>
+        <line x1="18" y1="130" x2="220" y2="130" stroke="#DFC1D7" stroke-width="0.9" stroke-linecap="round"/>
+        <rect class="bar" id="a4b0" style="animation-delay:.3s"  x="28"  y="100" width="14" height="30" rx="3" fill="url(#b0)" opacity="0.85"/>
+        <rect class="bar" id="a4b1" style="animation-delay:.43s" x="48"  y="86"  width="14" height="44" rx="3" fill="url(#b1)" opacity="0.85"/>
+        <rect class="bar" id="a4b2" style="animation-delay:.56s" x="68"  y="108" width="14" height="22" rx="3" fill="url(#b2)" opacity="0.85"/>
+        <rect class="bar" id="a4b3" style="animation-delay:.69s" x="88"  y="92"  width="14" height="38" rx="3" fill="url(#b3)" opacity="0.85"/>
+        <rect class="bar" id="a4b4" style="animation-delay:.82s" x="108" y="88"  width="14" height="42" rx="3" fill="url(#b4)" opacity="0.85"/>
+        <rect class="bar" id="a4b5" style="animation-delay:.95s" x="128" y="102" width="14" height="28" rx="3" fill="url(#b5)" opacity="0.85"/>
+        <rect class="bar" id="a4b6" style="animation-delay:1.08s" x="148" y="95" width="14" height="35" rx="3" fill="url(#b0)" opacity="0.85"/>
+        <rect x="12" y="148" width="210" height="14" rx="5" fill="#F3E8F0"/>
+        <rect x="20" y="152" width="44" height="6" rx="3" fill="#DFC1D7"/>
+        <rect x="76" y="152" width="38" height="6" rx="3" fill="#C193BC"/>
+        <rect x="126" y="152" width="28" height="6" rx="3" fill="#DFC1D7"/>
+        <rect x="166" y="152" width="38" height="6" rx="3" fill="#C193BC"/>
+        <defs>
+          <linearGradient id="b0" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#E3C5E2"/><stop offset="1" stop-color="#C193BC"/></linearGradient>
+          <linearGradient id="b1" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#C193BC"/><stop offset="1" stop-color="#710252"/></linearGradient>
+          <linearGradient id="b2" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#E3C5E2"/><stop offset="1" stop-color="#C193BC"/></linearGradient>
+          <linearGradient id="b3" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#C193BC"/><stop offset="1" stop-color="#710252"/></linearGradient>
+          <linearGradient id="b4" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#E3C5E2"/><stop offset="1" stop-color="#C193BC"/></linearGradient>
+          <linearGradient id="b5" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#C193BC"/><stop offset="1" stop-color="#710252"/></linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Card 2: Arte2 -->
+  <div class="card" id="card1">
+    <div class="card-title" id="title1">Parceiros clínicos credenciados</div>
+    <div class="card-sub"   id="sub1">Que atendem a rigorosos critérios de conformidade e atualização.</div>
+    <div class="arte-wrap"  id="arte1">
+      <svg width="234" height="172" viewBox="0 0 234 172" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="234" height="172" rx="32" fill="white"/>
+        <g class="row" id="a2r0" style="animation-delay:.3s">
+          <rect x="10" y="10" width="214" height="44" rx="10" fill="white" style="filter:drop-shadow(0 3px 10px rgba(113,2,82,0.09))"/>
+          <circle cx="34" cy="32" r="14" fill="#F3E8F0"/>
+          <rect x="56" y="19" width="90" height="7" rx="3.5" fill="url(#g2t)"/>
+          <rect x="56" y="30" width="68" height="5" rx="2.5" fill="#EAEAEA"/>
+          <rect x="56" y="39" width="52" height="5" rx="2.5" fill="#EAEAEA"/>
+          <circle cx="208" cy="32" r="11" fill="white" stroke="#CBD5E1" stroke-width="1"/>
+        </g>
+        <g class="row" id="a2r1" style="animation-delay:.48s">
+          <rect x="10" y="64" width="214" height="44" rx="10" fill="white" style="filter:drop-shadow(0 3px 10px rgba(113,2,82,0.09))"/>
+          <rect x="10" y="64" width="214" height="44" rx="10" fill="none" stroke="#C193BC" stroke-width="1.5"/>
+          <circle cx="34" cy="86" r="14" fill="#F3E8F0"/>
+          <rect x="56" y="73" width="90" height="7" rx="3.5" fill="url(#g2t)"/>
+          <rect x="56" y="84" width="68" height="5" rx="2.5" fill="#EAEAEA"/>
+          <rect x="56" y="93" width="52" height="5" rx="2.5" fill="#EAEAEA"/>
+          <circle cx="208" cy="86" r="11" fill="#991780"/>
+          <path d="M204 86l3 3.5 5.5-6.5" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        <g class="row" id="a2r2" style="animation-delay:.66s">
+          <rect x="10" y="118" width="214" height="44" rx="10" fill="white" style="filter:drop-shadow(0 3px 10px rgba(113,2,82,0.09))"/>
+          <circle cx="34" cy="140" r="14" fill="#F3E8F0"/>
+          <rect x="56" y="127" width="90" height="7" rx="3.5" fill="url(#g2t)"/>
+          <rect x="56" y="138" width="68" height="5" rx="2.5" fill="#EAEAEA"/>
+          <rect x="56" y="147" width="52" height="5" rx="2.5" fill="#EAEAEA"/>
+          <circle cx="208" cy="140" r="11" fill="white" stroke="#CBD5E1" stroke-width="1"/>
+        </g>
+        <defs>
+          <linearGradient id="g2t" x1="56" y1="0" x2="146" y2="0" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#C193BC"/><stop offset="1" stop-color="#710252"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Card 3: Arte5 -->
+  <div class="card" id="card2">
+    <div class="card-title" id="title2">Jornada de alto engajamento</div>
+    <div class="card-sub"   id="sub2">Experiência personalizada e acompanhada para diferentes perfis.</div>
+    <div class="arte-wrap"  id="arte2">
+      <svg width="234" height="172" viewBox="0 0 234 172" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="234" height="172" rx="32" fill="white"/>
+        <rect x="10" y="10" width="214" height="122" rx="14" fill="url(#g5bg)"/>
+        <rect x="18" y="18" width="96" height="86" rx="8" fill="#F3E8F0" opacity="0.45"/>
+        <g class="pop" id="a5p0" style="animation-delay:.3s">
+          <circle cx="66" cy="54" r="20" fill="#991780" opacity="0.33"/>
+          <path d="M46 90 C54 68 78 68 86 90Z" fill="#991780" opacity="0.33"/>
+        </g>
+        <g class="pop" id="a5p1" style="animation-delay:.52s">
+          <rect x="124" y="18" width="90" height="54" rx="8" fill="#991780" opacity="0.20"/>
+          <circle cx="169" cy="38" r="11" fill="#F3E8F0"/>
+          <path d="M157 64 C163 50 175 50 181 64Z" fill="#F3E8F0"/>
+        </g>
+        <g class="pop" id="a5p2" style="animation-delay:.74s">
+          <rect x="10" y="118" width="214" height="22" rx="7" fill="white" opacity="0.65"/>
+          <circle cx="96"  cy="129" r="6.5" fill="#FCA5A5" opacity="0.9"/>
+          <circle cx="114" cy="129" r="6.5" fill="#93C5FD" opacity="0.9"/>
+          <circle cx="132" cy="129" r="6.5" fill="#93C5FD" opacity="0.9"/>
+        </g>
+        <circle cx="117" cy="6" r="4" fill="#473046" opacity="0.45"/>
+        <defs>
+          <linearGradient id="g5bg" x1="10" y1="10" x2="224" y2="132" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#F5CBE8" stop-opacity="0.55"/>
+            <stop offset="1" stop-color="#C183C1" stop-opacity="0.55"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+  <!-- Card 4: Arte3 -->
+  <div class="card" id="card3">
+    <div class="card-title" id="title3">Gestão inteligente e previsível</div>
+    <div class="card-sub"   id="sub3">Dados seguros que transformam a saúde mental em valor para o negócio.</div>
+    <div class="arte-wrap"  id="arte3">
+      <svg width="234" height="172" viewBox="0 0 234 172" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <rect width="234" height="172" rx="32" fill="white"/>
+        <rect x="56" y="14" width="120" height="10" rx="5" fill="url(#g3h)"/>
+        <rect x="18" y="34" width="88" height="8" rx="4" fill="#C193BC"/>
+        <rect x="18" y="46" width="64" height="6" rx="3" fill="#EAEAEA" opacity="0.6"/>
+        <rect x="120" y="34" width="96" height="8" rx="4" fill="#C193BC"/>
+        <rect x="120" y="46" width="64" height="6" rx="3" fill="#EAEAEA" opacity="0.6"/>
+        <rect x="12" y="60" width="210" height="88" rx="8" fill="white" stroke="#E5E7EB" stroke-width="0.8"/>
+        <line x1="18" y1="75"  x2="220" y2="75"  stroke="#F3F4F6" stroke-width="0.7"/>
+        <line x1="18" y1="90"  x2="220" y2="90"  stroke="#F3F4F6" stroke-width="0.7"/>
+        <line x1="18" y1="105" x2="220" y2="105" stroke="#F3F4F6" stroke-width="0.7"/>
+        <line x1="18" y1="120" x2="220" y2="120" stroke="#F3F4F6" stroke-width="0.7"/>
+        <line x1="18" y1="135" x2="220" y2="135" stroke="#F3F4F6" stroke-width="0.7"/>
+        <path class="line-path" id="a3line"
+          d="M28 128 L66 118 L100 122 L134 104 L168 109 L206 96"
+          stroke="#991780" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle class="dot" id="a3d0" style="animation-delay:.85s;transform-box:fill-box;transform-origin:center" cx="28"  cy="128" r="4" fill="white" stroke="#991780" stroke-width="1.5"/>
+        <circle class="dot" id="a3d1" style="animation-delay:1.0s;transform-box:fill-box;transform-origin:center"  cx="66"  cy="118" r="4" fill="white" stroke="#991780" stroke-width="1.5"/>
+        <circle class="dot" id="a3d2" style="animation-delay:1.15s;transform-box:fill-box;transform-origin:center" cx="100" cy="122" r="4" fill="white" stroke="#991780" stroke-width="1.5"/>
+        <circle class="dot" id="a3d3" style="animation-delay:1.3s;transform-box:fill-box;transform-origin:center"  cx="134" cy="104" r="4" fill="white" stroke="#991780" stroke-width="1.5"/>
+        <circle class="dot" id="a3d4" style="animation-delay:1.45s;transform-box:fill-box;transform-origin:center" cx="168" cy="109" r="4" fill="white" stroke="#991780" stroke-width="1.5"/>
+        <circle class="dot" id="a3d5" style="animation-delay:1.6s;transform-box:fill-box;transform-origin:center"  cx="206" cy="96"  r="4" fill="white" stroke="#991780" stroke-width="1.5"/>
+        <circle cx="206" cy="96" r="8" fill="#991780" opacity="0" id="a3glow"
+          style="transform-box:fill-box;transform-origin:center"/>
+        <rect x="12" y="158" width="210" height="8" rx="4" fill="#F3E8F0"/>
+        <rect x="20" y="160" width="48" height="4" rx="2" fill="#DFC1D7"/>
+        <defs>
+          <linearGradient id="g3h" x1="56" y1="0" x2="176" y2="0" gradientUnits="userSpaceOnUse">
+            <stop stop-color="#C193BC"/><stop offset="1" stop-color="#710252"/>
+          </linearGradient>
+        </defs>
+      </svg>
+    </div>
+  </div>
+
+</div><!-- /grid -->
+
+<!-- ══════════════════════════════════════════════
+     SPECS WEBFLOW
+══════════════════════════════════════════════ -->
+<div style="width:100%;max-width:1280px;margin-top:72px;display:flex;flex-direction:column;gap:48px;">
+
+  <!-- Divider -->
+  <div style="display:flex;align-items:center;gap:16px;">
+    <div style="flex:1;height:1px;background:#d0b8d8;"></div>
+    <span style="font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#9878a8;white-space:nowrap;">Specs Webflow — Motion Handoff</span>
+    <div style="flex:1;height:1px;background:#d0b8d8;"></div>
+  </div>
+
+  <!-- 1 · Estrutura HTML -->
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#991780;font-weight:600;margin-bottom:14px;">1 · Estrutura HTML</div>
+    <p style="font-size:13px;color:#7a5a8a;line-height:1.7;margin-bottom:14px;">
+      Cada card é um <code style="background:#f5eef8;padding:2px 6px;border-radius:4px;font-size:11px;color:#991780;">.card</code> com três filhos em ordem:
+      <code style="background:#f5eef8;padding:2px 6px;border-radius:4px;font-size:11px;color:#991780;">.card-title</code>,
+      <code style="background:#f5eef8;padding:2px 6px;border-radius:4px;font-size:11px;color:#991780;">.card-sub</code> e
+      <code style="background:#f5eef8;padding:2px 6px;border-radius:4px;font-size:11px;color:#991780;">.arte-wrap</code>.
+      No Webflow, use um <strong>Div Block</strong> com classe <code style="background:#f5eef8;padding:2px 6px;border-radius:4px;font-size:11px;color:#991780;">card</code> e insira os elementos filhos nessa ordem.
+    </p>
+    <pre style="background:#f5eef8;border:1px solid #d0b8d8;border-radius:8px;padding:18px;font-size:11px;line-height:1.8;color:#3a0a52;overflow-x:auto;white-space:pre;">&lt;div class="cards-grid"&gt;
+  &lt;div class="card" data-index="0"&gt;
+    &lt;h3 class="card-title"&gt;Psicologia baseada em evidências (PBE)&lt;/h3&gt;
+    &lt;p  class="card-sub"&gt;Para resultados mensuráveis e sustentáveis.&lt;/p&gt;
+    &lt;div class="arte-wrap"&gt;
+      &lt;!-- SVG da Arte aqui --&gt;
+    &lt;/div&gt;
+  &lt;/div&gt;
+  &lt;!-- repetir para os outros 3 cards --&gt;
+&lt;/div&gt;</pre>
+  </div>
+
+  <!-- 2 · Tipografia dos cards -->
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#991780;font-weight:600;margin-bottom:14px;">2 · Tipografia</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="border-bottom:1px solid #e4d0ec;">
+        <td style="padding:10px 8px;color:#a080aa;width:180px;">Elemento</td>
+        <td style="padding:10px 8px;color:#a080aa;width:120px;">Font</td>
+        <td style="padding:10px 8px;color:#a080aa;width:100px;">Weight</td>
+        <td style="padding:10px 8px;color:#a080aa;width:80px;">Size</td>
+        <td style="padding:10px 8px;color:#a080aa;width:100px;">Line height</td>
+        <td style="padding:10px 8px;color:#a080aa;">Color</td>
+      </tr>
+      <tr style="border-bottom:1px solid #e4d0ec;">
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">.card-title</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">Rubik</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">500</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">24px</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">32px</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">#252432</td>
+      </tr>
+      <tr style="border-bottom:1px solid #e4d0ec;">
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">.card-sub</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">Rubik</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">400</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">16px</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">24px</td>
+        <td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">#473046</td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- 3 · CSS -->
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#991780;font-weight:600;margin-bottom:14px;">3 · CSS — Project Settings → Head Code</div>
+    <pre style="background:#f5eef8;border:1px solid #d0b8d8;border-radius:8px;padding:18px;font-size:11px;line-height:1.8;color:#3a0a52;overflow-x:auto;white-space:pre;">/* ── Grid ── */
+.cards-grid {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ── Card ── */
+.card {
+  width: 302px;
+  background: rgba(255,255,255,0.91);
+  border-radius: 16px;
+  box-shadow: 0 8px 40px rgba(113,2,82,0.13);
+  padding: 33px 24px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  opacity: 0; /* começa invisível */
+}
+
+/* ── Título ── */
+.card-title {
+  font-family: 'Rubik', sans-serif;
+  font-size: 24px;
+  font-weight: 500;
+  line-height: 32px;
+  color: #252432;
+  text-align: center;
+  opacity: 0;
+}
+
+/* ── Subtítulo ── */
+.card-sub {
+  font-family: 'Rubik', sans-serif;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 24px;
+  color: #473046;
+  text-align: center;
+  margin-top: 12px;
+  opacity: 0;
+}
+
+/* ── Arte ── */
+.arte-wrap {
+  margin-top: 20px;
+  width: 234px;
+  height: 172px;
+  border-radius: 32px;
+  overflow: hidden;
+  opacity: 0;
+}
+
+/* ── Keyframes ── */
+@keyframes riseUp {
+  from { opacity: 0; transform: translateY(40px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes arteFade {
+  from { opacity: 0; transform: scale(0.93); }
+  to   { opacity: 1; transform: scale(1); }
+}
+
+/* ── Estados animados (adicionados via JS) ── */
+.card.run      { animation: riseUp    0.65s cubic-bezier(.34,1.15,.64,1) forwards; }
+.card-title.run{ animation: fadeUp    0.5s  ease forwards; }
+.card-sub.run  { animation: fadeUp    0.5s  ease forwards; }
+.arte-wrap.run { animation: arteFade  0.55s cubic-bezier(.34,1.2,.64,1) forwards; }
+
+/* ── Arte4 – barras ── */
+.bar { transform-box:fill-box; transform-origin:bottom; transform:scaleY(0); }
+.bar.run { animation: growBar 0.55s cubic-bezier(.34,1.4,.64,1) forwards; }
+@keyframes growBar { from{transform:scaleY(0)} to{transform:scaleY(1)} }
+
+/* ── Arte2 – linhas de lista ── */
+.row { opacity: 0; }
+.row.run { animation: rowIn 0.4s ease forwards; }
+@keyframes rowIn { from{opacity:0;transform:translateX(-16px)} to{opacity:1;transform:translateX(0)} }
+
+/* ── Arte5 – pop ── */
+.pop { opacity: 0; transform-box:fill-box; transform-origin:center; }
+.pop.run { animation: pop 0.45s cubic-bezier(.34,1.56,.64,1) forwards; }
+@keyframes pop { from{opacity:0;transform:scale(0.3)} to{opacity:1;transform:scale(1)} }
+
+/* ── Arte3 – linha de gráfico ── */
+.line-path { stroke-dasharray:500; stroke-dashoffset:500; }
+.line-path.run { animation: drawLine 1.3s ease 0.3s forwards; }
+@keyframes drawLine { from{stroke-dashoffset:500} to{stroke-dashoffset:0} }
+
+.dot { opacity:0; transform-box:fill-box; transform-origin:center; }
+.dot.run { animation: popDot 0.25s ease forwards; }
+@keyframes popDot { from{opacity:0;transform:scale(0)} to{opacity:1;transform:scale(1)} }</pre>
+  </div>
+
+  <!-- 4 · JS -->
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#991780;font-weight:600;margin-bottom:14px;">4 · JavaScript — Before &lt;/body&gt; tag</div>
+    <pre style="background:#f5eef8;border:1px solid #d0b8d8;border-radius:8px;padding:18px;font-size:11px;line-height:1.8;color:#3a0a52;overflow-x:auto;white-space:pre;">const STAGGER = 150; // ms entre cards
+
+const cards = document.querySelectorAll('.card');
+
+function animateCard(card, baseDelay) {
+  const title = card.querySelector('.card-title');
+  const sub   = card.querySelector('.card-sub');
+  const arte  = card.querySelector('.arte-wrap');
+
+  // card entrance
+  setTimeout(() => card.classList.add('run'), baseDelay);
+
+  // título
+  setTimeout(() => title.classList.add('run'), baseDelay + 120);
+
+  // subtítulo
+  setTimeout(() => sub.classList.add('run'), baseDelay + 220);
+
+  // arte wrapper
+  setTimeout(() => arte.classList.add('run'), baseDelay + 320);
+
+  // elementos internos da arte (barras, linhas, dots, rows, pops)
+  setTimeout(() => {
+    arte.querySelectorAll('.bar, .row, .pop, .line-path, .dot')
+        .forEach(el => el.classList.add('run'));
+  }, baseDelay + 380);
+}
+
+// IntersectionObserver — dispara quando entra na viewport
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const idx = Array.from(cards).indexOf(entry.target);
+      animateCard(entry.target, idx * STAGGER);
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+cards.forEach(card => observer.observe(card));</pre>
+  </div>
+
+  <!-- 5 · Parâmetros de motion -->
+  <div>
+    <div style="font-size:10px;text-transform:uppercase;letter-spacing:.12em;color:#991780;font-weight:600;margin-bottom:14px;">5 · Parâmetros de Motion</div>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="border-bottom:1px solid #e4d0ec;">
+        <td style="padding:10px 8px;color:#a080aa;width:220px;">Propriedade</td>
+        <td style="padding:10px 8px;color:#a080aa;">Valor</td>
+      </tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Trigger</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">IntersectionObserver · threshold 0.15</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Stagger entre cards</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">150ms</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Card entrance</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">riseUp · 0.65s · cubic-bezier(.34,1.15,.64,1)</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Título</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">fadeUp · 0.5s · ease · delay +120ms</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Subtítulo</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">fadeUp · 0.5s · ease · delay +220ms</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Arte wrapper</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">arteFade (scale .93→1) · 0.55s · delay +320ms</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Arte internals</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">delay +380ms (timing próprio via animation-delay)</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Arte4 – barras</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">growBar · scaleY(0→1) · 0.55s · cubic-bezier(.34,1.4,.64,1)</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Arte2 – rows</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">rowIn · translateX(-16→0) · 0.4s · ease · stagger 18ms</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Arte5 – pop</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">pop · scale(.3→1) · 0.45s · cubic-bezier(.34,1.56,.64,1)</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Arte3 – linha</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">stroke-dashoffset · 1.3s · ease · delay 0.3s</td></tr>
+      <tr style="border-bottom:1px solid #e4d0ec;"><td style="padding:10px 8px;color:#a080aa;">Arte3 – dots</td><td style="padding:10px 8px;color:#4a1a5e;font-family:monospace;font-size:12px;">popDot · scale(0→1) · 0.25s · stagger 150ms a partir de 0.85s</td></tr>
+    </table>
+  </div>
+
+</div><!-- /specs -->
+
+<script>
+  const STAGGER = 150; // ms between cards
+
+  const cards = [
+    {
+      cardId:"card0", titleId:"title0", subId:"sub0", arteId:"arte0",
+      internals:[
+        {sel:".bar", class:"run"},
+      ]
+    },
+    {
+      cardId:"card1", titleId:"title1", subId:"sub1", arteId:"arte1",
+      internals:[
+        {sel:".row", class:"run"},
+      ]
+    },
+    {
+      cardId:"card2", titleId:"title2", subId:"sub2", arteId:"arte2",
+      internals:[
+        {sel:".pop", class:"run"},
+      ]
+    },
+    {
+      cardId:"card3", titleId:"title3", subId:"sub3", arteId:"arte3",
+      internals:[
+        {sel:".line-path", class:"run"},
+        {sel:".dot",       class:"run"},
+      ]
+    },
+  ];
+
+  function resetEl(el) {
+    el.classList.remove("run","rise","fadeUp");
+    void el.offsetWidth; // reflow
+  }
+
+  function animateCard(cfg, baseDelay) {
+    const card  = document.getElementById(cfg.cardId);
+    const title = document.getElementById(cfg.titleId);
+    const sub   = document.getElementById(cfg.subId);
+    const arte  = document.getElementById(cfg.arteId);
+
+    // reset
+    [card, title, sub, arte].forEach(resetEl);
+    arte.querySelectorAll(".bar,.row,.pop,.line-path,.dot").forEach(resetEl);
+
+    // card entrance
+    setTimeout(() => card.classList.add("run"), baseDelay);
+
+    // title
+    setTimeout(() => {
+      title.style.animationDelay = "0s";
+      title.classList.add("run");
+    }, baseDelay + 120);
+
+    // subtitle
+    setTimeout(() => {
+      sub.style.animationDelay = "0s";
+      sub.classList.add("run");
+    }, baseDelay + 220);
+
+    // arte wrapper
+    setTimeout(() => arte.classList.add("run"), baseDelay + 320);
+
+    // arte internals
+    setTimeout(() => {
+      cfg.internals.forEach(({ sel }) => {
+        arte.querySelectorAll(sel).forEach(el => el.classList.add("run"));
+      });
+    }, baseDelay + 380);
+  }
+
+  function startAll() {
+    cards.forEach((cfg, i) => animateCard(cfg, i * STAGGER));
+  }
+
+  function replay() {
+    // full reset first
+    cards.forEach(({ cardId, titleId, subId, arteId }) => {
+      [cardId, titleId, subId, arteId].forEach(id => resetEl(document.getElementById(id)));
+      document.getElementById(arteId)
+        .querySelectorAll(".bar,.row,.pop,.line-path,.dot")
+        .forEach(resetEl);
+    });
+    setTimeout(startAll, 30);
+  }
+
+  startAll();
+</script>
+</body>
+</html>
