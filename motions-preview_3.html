@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Statistics — Motion Preview & Handoff</title>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ─────── RESET ─────── */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* ─────── BODY ─────── */
+body {
+  background: #ede0eb;
+  font-family: 'Rubik', sans-serif;
+  color: #1a0e18;
+}
+
+/* ─────── TOKENS ─────── */
+:root {
+  --brand:    #991780;
+  --deep:     #570740;
+  --dark:     #710252;
+  --pale:     #f3e8f0;
+  --light:    #f4d3ed;
+  --mid:      #c193bc;
+  --star:     #ffb769;
+  --text:     #4a3548;
+  --bg:       #ede0eb;
+  --card-bg:  rgba(255,255,255,.62);
+  --r:        20px;
+  --gap:      14px;
+}
+
+/* ─────── SEÇÕES ─────── */
+.section {
+  padding: 64px 48px;
+}
+.section + .section {
+  border-top: 1px solid rgba(153,23,128,.1);
+}
+
+/* ─────── PREVIEW SECTION ─────── */
+.preview-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 28px;
+}
+
+.top-bar {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  width: 100%; max-width: 960px;
+}
+
+.page-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 600;
+  letter-spacing: .12em; text-transform: uppercase;
+  color: var(--mid);
+}
+
+.replay-btn {
+  display: inline-flex; align-items: center; gap: 7px;
+  background: var(--brand); color: #fff;
+  border: none; border-radius: 100px;
+  padding: 9px 20px;
+  font-family: 'Rubik', sans-serif;
+  font-size: 13px; font-weight: 500; cursor: pointer;
+  transition: background .2s, transform .15s;
+  box-shadow: 0 4px 14px rgba(153,23,128,.32);
+}
+.replay-btn:hover { background: var(--dark); transform: scale(1.04); }
+
+/* ─────── STATS GRID ─────── */
+.stats-row {
+  display: grid;
+  grid-template-columns: 280px 240px 160px 240px;
+  gap: var(--gap);
+  align-items: stretch;
+  max-width: 960px;
+  width: 100%;
+}
+
+.card-wrap { perspective: 900px; min-width: 0; }
+
+.card {
+  border-radius: var(--r);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  transform-style: preserve-3d;
+  transition: transform .45s cubic-bezier(.03,.98,.52,.99), box-shadow .3s ease;
+  will-change: transform;
+  min-width: 0;
+}
+
+/* shimmer */
+.card::before {
+  content: '';
+  position: absolute; inset: 0; border-radius: inherit;
+  background: radial-gradient(circle at var(--mx,50%) var(--my,50%),
+    rgba(255,255,255,.22) 0%, transparent 60%);
+  opacity: 0; transition: opacity .2s ease;
+  pointer-events: none; z-index: 10;
+}
+.card:hover::before { opacity: 1; }
+
+/* ── foto placeholder ── */
+.card-img {
+  width: 100%; height: 100%; min-height: 340px;
+  display: flex; align-items: flex-end; padding: 18px;
+  position: relative; overflow: hidden;
+}
+.card-img-1 { background: linear-gradient(150deg,#dcc6d8,#c8aac3,#b590ae); }
+.card-img-2 { background: linear-gradient(150deg,#cdb4c8,#b89cb4,#a882a2); }
+
+.silhouette {
+  position: absolute; bottom: 0; left: 50%;
+  transform: translateX(-50%);
+  display: flex; flex-direction: column; align-items: center;
+}
+.silhouette .head {
+  width: 68px; height: 68px; border-radius: 50%;
+  background: rgba(255,255,255,.28);
+}
+.silhouette .body {
+  width: 120px; height: 130px;
+  border-radius: 60px 60px 0 0;
+  background: rgba(255,255,255,.18); margin-top: -12px;
+}
+
+.img-badge {
+  position: relative; z-index: 2;
+  background: rgba(87,7,64,.38);
+  backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255,255,255,.22);
+  border-radius: 14px; padding: 14px 18px; width: 100%;
+}
+.img-badge .num {
+  font-size: 32px; font-weight: 600; color: var(--pale);
+  letter-spacing: -.5px;
+  display: flex; align-items: center; gap: 5px; line-height: 1.1;
+}
+.img-badge .num .arrow { font-size: 17px; margin-left: 2px; }
+.img-badge .desc {
+  font-size: 13.5px; color: rgba(255,255,255,.88);
+  margin-top: 6px; line-height: 1.35;
+}
+
+/* ── stat cards ── */
+.card-stat {
+  background: var(--card-bg);
+  backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(244,211,237,.75);
+  box-shadow: 0 2px 16px rgba(153,23,128,.08);
+}
+.card-stat-inner {
+  padding: 26px 24px;
+  display: flex; flex-direction: column;
+  justify-content: center; height: 100%; gap: 8px;
+}
+
+.stat-number {
+  font-size: 36px; font-weight: 600; color: var(--brand);
+  letter-spacing: -.5px; line-height: 1.15;
+  display: flex; align-items: baseline; flex-wrap: wrap; gap: 4px;
+  font-variant-numeric: tabular-nums;
+}
+.stat-number .arrow-up { font-size: 17px; font-weight: 400; margin-left: 2px; }
+.stat-number .suffix   { font-size: 22px; font-weight: 600; letter-spacing: -.3px; }
+
+.stat-desc { font-size: 14.5px; color: var(--text); font-weight: 400; line-height: 1.45; }
+.stat-note { font-size: 11.5px; color: var(--mid); font-weight: 300; }
+
+.rating-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.rating-label { font-size: 13.5px; color: var(--text); }
+.rating-num { font-size: 36px; font-weight: 600; color: var(--brand); letter-spacing: -.5px; }
+.star-icon { color: var(--star); font-size: 26px; }
+
+.stat-col-double { display: flex; flex-direction: column; gap: var(--gap); }
+.stat-col-double .card-wrap { flex: 1; }
+.stat-col-double .card { height: 100%; }
+
+.cnt { display: inline-block; }
+
+
+/* ═══════════════════════════════════════
+   HANDOFF SECTION
+═══════════════════════════════════════ */
+.handoff-section {
+  background: #fff;
+}
+
+.handoff-header {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; margin-bottom: 48px;
+  gap: 24px; flex-wrap: wrap;
+}
+.handoff-title {
+  font-family: 'Inter', sans-serif;
+  font-size: 22px; font-weight: 600; color: #0f0a0e;
+  margin-bottom: 6px;
+}
+.handoff-sub {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; color: #9a7a95;
+}
+.handoff-badge {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: #fdf0fa; border: 1px solid rgba(153,23,128,.2);
+  border-radius: 8px; padding: 8px 14px;
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; font-weight: 500; color: var(--brand);
+  white-space: nowrap;
+}
+
+/* ── blocos de spec ── */
+.spec-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+  margin-bottom: 32px;
+}
+@media (max-width: 700px) { .spec-grid { grid-template-columns: 1fr; } }
+
+.spec-block {
+  border: 1px solid #f0e0ee;
+  border-radius: 14px; overflow: hidden;
+}
+.spec-block-head {
+  background: #fdf0fa;
+  padding: 14px 20px;
+  display: flex; align-items: center; gap: 10px;
+  border-bottom: 1px solid #f0e0ee;
+}
+.spec-block-head .icon {
+  width: 28px; height: 28px; border-radius: 8px;
+  background: var(--brand);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: #fff; flex-shrink: 0;
+}
+.spec-block-head .label {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px; font-weight: 600; color: #0f0a0e;
+}
+.spec-block-head .sublabel {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; color: #9a7a95; margin-top: 1px;
+}
+.spec-body { padding: 20px; }
+
+/* ── tabela de props ── */
+.prop-table { width: 100%; border-collapse: collapse; }
+.prop-table tr + tr td { border-top: 1px solid #f5e8f3; }
+.prop-table td {
+  padding: 9px 0;
+  font-family: 'Inter', sans-serif; font-size: 13px;
+  vertical-align: top;
+}
+.prop-table td:first-child {
+  color: #9a7a95; width: 42%; padding-right: 12px;
+  font-size: 11.5px; font-weight: 500;
+  text-transform: uppercase; letter-spacing: .06em;
+  padding-top: 11px;
+}
+.prop-table td:last-child { color: #1a0e18; }
+
+/* token pill */
+.tok {
+  display: inline-flex; align-items: center; gap: 5px;
+  background: #f5f5f5; border: 1px solid #e8e0e6;
+  border-radius: 6px; padding: 3px 8px;
+  font-family: 'Inter', monospace;
+  font-size: 12px; color: #0f0a0e; white-space: nowrap;
+}
+.tok .dot-color {
+  width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0;
+}
+.tok.brand { background: #fdf0fa; border-color: rgba(153,23,128,.2); color: var(--brand); }
+.tok.code  { background: #f0f4ff; border-color: #dce4ff; color: #3340bb; }
+
+/* ── code snippet ── */
+.code-wrap {
+  background: #0f0a0e;
+  border-radius: 10px; overflow: hidden;
+  margin-top: 8px;
+}
+.code-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 10px 16px;
+  background: rgba(255,255,255,.05);
+  border-bottom: 1px solid rgba(255,255,255,.06);
+}
+.code-lang {
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 600;
+  color: rgba(255,255,255,.4);
+  text-transform: uppercase; letter-spacing: .08em;
+}
+.copy-btn {
+  font-family: 'Inter', sans-serif; font-size: 11px;
+  color: rgba(255,255,255,.4); background: none; border: none;
+  cursor: pointer; padding: 2px 6px; border-radius: 4px;
+  transition: color .15s, background .15s;
+}
+.copy-btn:hover { color: #fff; background: rgba(255,255,255,.08); }
+.copy-btn.copied { color: #6ee7b7; }
+
+pre.code {
+  padding: 18px; overflow-x: auto;
+  font-family: 'Fira Code', 'Cascadia Code', monospace;
+  font-size: 12.5px; line-height: 1.75;
+  color: #e2cfe0; margin: 0;
+  white-space: pre;
+}
+.cm  { color: #7c6b7a; }   /* comment */
+.ck  { color: #c792ea; }   /* keyword / property */
+.cv  { color: #f78c6c; }   /* value / number */
+.cs  { color: #c3e88d; }   /* string */
+.cf  { color: #82aaff; }   /* function */
+.co  { color: #ffcb6b; }   /* operator / selector */
+
+/* ── timeline ── */
+.timeline {
+  display: flex; gap: 0; margin-top: 4px;
+}
+.tl-step {
+  flex: 1; position: relative;
+  padding: 12px 14px 12px 0;
+}
+.tl-step + .tl-step { border-left: 1px dashed #f0e0ee; padding-left: 14px; }
+.tl-ms {
+  font-family: 'Inter', monospace;
+  font-size: 11px; font-weight: 600; color: var(--brand);
+  margin-bottom: 4px;
+}
+.tl-label {
+  font-family: 'Inter', sans-serif;
+  font-size: 12px; color: var(--text); line-height: 1.4;
+}
+
+/* ── checklist ── */
+.checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+.checklist li {
+  display: flex; align-items: flex-start; gap: 9px;
+  font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text);
+  line-height: 1.5;
+}
+.checklist li .check {
+  width: 18px; height: 18px; border-radius: 5px;
+  background: #edfaf3; border: 1.5px solid #6ee7b7;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+  font-size: 10px; color: #059669;
+}
+.checklist li .warn {
+  width: 18px; height: 18px; border-radius: 5px;
+  background: #fffbeb; border: 1.5px solid #fcd34d;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0; margin-top: 1px;
+  font-size: 10px; color: #d97706;
+}
+
+/* ── divider interno ── */
+.inner-divider {
+  height: 1px; background: #f0e0ee; margin: 32px 0;
+}
+
+/* ── note box ── */
+.note-box {
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 10px; padding: 14px 18px;
+  display: flex; gap: 10px; align-items: flex-start;
+  font-family: 'Inter', sans-serif; font-size: 13px;
+  color: #78350f; line-height: 1.55;
+}
+.note-box .note-icon { font-size: 16px; flex-shrink: 0; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     PREVIEW
+═══════════════════════════════════════ -->
+<div class="section preview-section">
+  <div class="top-bar">
+    <span class="page-label">Motion Preview — Statistics Section</span>
+    <button class="replay-btn" onclick="resetAndPlay()">↺ &nbsp;Replay contador</button>
+  </div>
+
+  <div class="stats-row">
+
+    <!-- COL 1 — foto + badge 500 mil -->
+    <div class="card-wrap">
+      <div class="card card-img card-img-1" id="card1">
+        <div class="silhouette"><div class="head"></div><div class="body"></div></div>
+        <div class="img-badge">
+          <div class="num">+&thinsp;<span class="cnt" id="c1">0</span>&thinsp;mil<span class="arrow">↑</span></div>
+          <p class="desc">pessoas com acesso a cuidado de qualidade</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- COL 2 — 1.8 milhões + 4,9★ -->
+    <div class="stat-col-double">
+      <div class="card-wrap">
+        <div class="card card-stat" id="card2">
+          <div class="card-stat-inner">
+            <div class="stat-number">+&thinsp;<span class="cnt" id="c2">0</span><span class="suffix">milhões</span><span class="arrow-up">↑</span></div>
+            <p class="stat-desc">de sessões de terapia já realizadas</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-wrap">
+        <div class="card card-stat" id="card3">
+          <div class="card-stat-inner">
+            <div class="rating-row">
+              <span class="rating-label">Avaliação dos usuários</span>
+              <span class="rating-num"><span class="cnt" id="c3">0</span></span>
+              <span class="star-icon">★</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- COL 3 — foto sem badge -->
+    <div class="card-wrap">
+      <div class="card card-img card-img-2" id="card4">
+        <div class="silhouette"><div class="head"></div><div class="body"></div></div>
+      </div>
+    </div>
+
+    <!-- COL 4 — 60% + 1.1 mil -->
+    <div class="stat-col-double">
+      <div class="card-wrap">
+        <div class="card card-stat" id="card5">
+          <div class="card-stat-inner">
+            <div class="stat-number"><span class="cnt" id="c4">0</span>%<span class="arrow-up">↑</span></div>
+            <p class="stat-desc">de melhora clínica* em 4 a 8 semanas</p>
+            <p class="stat-note">* Relato dos usuários</p>
+          </div>
+        </div>
+      </div>
+      <div class="card-wrap">
+        <div class="card card-stat" id="card6">
+          <div class="card-stat-inner">
+            <p class="stat-desc" style="margin-bottom:4px;">Psicólogos disponíveis na rede</p>
+            <div class="stat-number" style="font-size:40px;">+&thinsp;<span class="cnt" id="c5">0</span>&thinsp;mil</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div><!-- /preview -->
+
+
+<!-- ═══════════════════════════════════════
+     HANDOFF
+═══════════════════════════════════════ -->
+<div class="section handoff-section">
+
+  <div class="handoff-header">
+    <div>
+      <p class="handoff-title">Motion Handoff — Dev Front</p>
+      <p class="handoff-sub">Statistics Section · 2 interações · Componente: <code style="font-size:12px;background:#f5f0f4;padding:2px 6px;border-radius:4px;">StatisticsSection</code></p>
+    </div>
+    <div class="handoff-badge">✦ &nbsp;Pronto para implementar</div>
+  </div>
+
+  <!-- ── MOTION 01: COUNTER ── -->
+  <div class="spec-grid">
+
+    <div class="spec-block">
+      <div class="spec-block-head">
+        <div class="icon">01</div>
+        <div>
+          <div class="label">Counter Animation</div>
+          <div class="sublabel">Números sobem ao entrar na viewport</div>
+        </div>
+      </div>
+      <div class="spec-body">
+        <table class="prop-table">
+          <tr>
+            <td>Trigger</td>
+            <td><span class="tok">IntersectionObserver</span> · threshold <span class="tok">0.3</span></td>
+          </tr>
+          <tr>
+            <td>Duração</td>
+            <td><span class="tok cv">1900ms</span> por número</td>
+          </tr>
+          <tr>
+            <td>Easing</td>
+            <td><span class="tok code">easeOutExpo</span> · <span class="tok">1 − 2^(−10t)</span></td>
+          </tr>
+          <tr>
+            <td>Stagger</td>
+            <td><span class="tok cv">+130ms</span> por card (esq → dir)</td>
+          </tr>
+          <tr>
+            <td>Formato</td>
+            <td>
+              <span class="tok">500 → "500 mil"</span><br style="margin-bottom:4px;">
+              <span class="tok">1.8 → "1,8 milhões"</span><br style="margin-bottom:4px;">
+              <span class="tok">4.9 → "4,9 ★"</span><br style="margin-bottom:4px;">
+              <span class="tok">60 → "60%"</span><br style="margin-bottom:4px;">
+              <span class="tok">1.1 → "1,1 mil"</span>
+            </td>
+          </tr>
+          <tr>
+            <td>Decimais</td>
+            <td><span class="tok">toFixed(1)</span> · vírgula BR</td>
+          </tr>
+          <tr>
+            <td>Replay</td>
+            <td>Só dispara 1× por sessão (flag <span class="tok code">played</span>)</td>
+          </tr>
+        </table>
+
+        <div style="margin-top:16px;">
+          <p style="font-family:'Inter',sans-serif;font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#9a7a95;margin-bottom:8px;">Timeline por card</p>
+          <div class="timeline">
+            <div class="tl-step"><div class="tl-ms">0ms</div><div class="tl-label">c1 inicia<br>500 mil</div></div>
+            <div class="tl-step"><div class="tl-ms">130ms</div><div class="tl-label">c2 inicia<br>1,8 mi</div></div>
+            <div class="tl-step"><div class="tl-ms">260ms</div><div class="tl-label">c3 inicia<br>4,9 ★</div></div>
+            <div class="tl-step"><div class="tl-ms">390ms</div><div class="tl-label">c4 inicia<br>60%</div></div>
+            <div class="tl-step"><div class="tl-ms">520ms</div><div class="tl-label">c5 inicia<br>1,1 mil</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── MOTION 02: TILT ── -->
+    <div class="spec-block">
+      <div class="spec-block-head">
+        <div class="icon">02</div>
+        <div>
+          <div class="label">3D Tilt Hover</div>
+          <div class="sublabel">Cards inclinam ao cursor · shimmer de luz</div>
+        </div>
+      </div>
+      <div class="spec-body">
+        <table class="prop-table">
+          <tr>
+            <td>Trigger</td>
+            <td><span class="tok">mousemove</span> + <span class="tok">mouseleave</span></td>
+          </tr>
+          <tr>
+            <td>Rotação máx</td>
+            <td><span class="tok cv">6°</span> em X e Y</td>
+          </tr>
+          <tr>
+            <td>Scale</td>
+            <td><span class="tok cv">1.02</span> durante hover</td>
+          </tr>
+          <tr>
+            <td>Perspectiva</td>
+            <td><span class="tok cv">900px</span> no wrapper pai</td>
+          </tr>
+          <tr>
+            <td>Entrada</td>
+            <td><span class="tok cv">.08s</span> <span class="tok">ease</span> (rápido, segue cursor)</td>
+          </tr>
+          <tr>
+            <td>Saída</td>
+            <td><span class="tok cv">.55s</span> <span class="tok code">cubic-bezier(.03,.98,.52,.99)</span></td>
+          </tr>
+          <tr>
+            <td>Sombra</td>
+            <td>Dinâmica — desloca oposta ao tilt<br><span class="tok">rgba(113,2,82,.16)</span></td>
+          </tr>
+          <tr>
+            <td>Shimmer</td>
+            <td><span class="tok">radial-gradient</span> segue posição do cursor, <span class="tok cv">opacity 0 → 1</span> em <span class="tok cv">.2s</span></td>
+          </tr>
+          <tr>
+            <td>Aplica em</td>
+            <td>Todos os <span class="tok brand">.card</span> · fotos e stats</td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /spec-grid -->
+
+  <!-- ── CÓDIGO ── -->
+  <div class="inner-divider"></div>
+
+  <p style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#0f0a0e;margin-bottom:16px;">Código de referência</p>
+
+  <div class="spec-grid">
+
+    <!-- counter -->
+    <div>
+      <div class="code-wrap">
+        <div class="code-header">
+          <span class="code-lang">JavaScript · Counter</span>
+          <button class="copy-btn" onclick="copyCode(this,'counter-code')">Copiar</button>
+        </div>
+        <pre class="code" id="counter-code"><span class="cm">// easing function</span>
+<span class="ck">function</span> <span class="cf">easeOutExpo</span>(t) {
+  <span class="ck">return</span> t >= <span class="cv">1</span> ? <span class="cv">1</span> : <span class="cv">1</span> - Math.<span class="cf">pow</span>(<span class="cv">2</span>, <span class="cv">-10</span> * t);
+}
+
+<span class="cm">// formata número (vírgula BR)</span>
+<span class="ck">function</span> <span class="cf">fmt</span>(v, dec) {
+  <span class="ck">return</span> dec
+    ? v.<span class="cf">toFixed</span>(<span class="cv">1</span>).<span class="cf">replace</span>(<span class="cs">'.'</span>, <span class="cs">','</span>)
+    : Math.<span class="cf">floor</span>(v) + <span class="cs">''</span>;
+}
+
+<span class="cm">// anima um contador</span>
+<span class="ck">function</span> <span class="cf">animateCounter</span>(el, target, dec, delay) {
+  <span class="ck">const</span> DUR = <span class="cv">1900</span>; <span class="cm">// ms</span>
+  <span class="ck">let</span> t0 = <span class="ck">null</span>;
+  setTimeout(() => {
+    (<span class="ck">function</span> <span class="cf">tick</span>(ts) {
+      <span class="ck">if</span> (!t0) t0 = ts;
+      <span class="ck">const</span> p = Math.<span class="cf">min</span>((ts - t0) / DUR, <span class="cv">1</span>);
+      el.textContent = <span class="cf">fmt</span>(<span class="cf">easeOutExpo</span>(p) * target, dec);
+      <span class="ck">if</span> (p < <span class="cv">1</span>) requestAnimationFrame(tick);
+      <span class="ck">else</span> el.textContent = <span class="cf">fmt</span>(target, dec);
+    })(performance.now());
+  }, delay);
+}
+
+<span class="cm">// dispara ao entrar na viewport</span>
+<span class="ck">let</span> played = <span class="ck">false</span>;
+<span class="ck">const</span> io = <span class="ck">new</span> <span class="cf">IntersectionObserver</span>(([e]) => {
+  <span class="ck">if</span> (e.isIntersecting && !played) {
+    played = <span class="ck">true</span>;
+    counters.<span class="cf">forEach</span>((cfg, i) =>
+      <span class="cf">animateCounter</span>(
+        document.<span class="cf">getElementById</span>(cfg.id),
+        cfg.target, cfg.decimal, i * <span class="cv">130</span>
+      )
+    );
+  }
+}, { threshold: <span class="cv">0.3</span> });
+io.<span class="cf">observe</span>(statsSection);</pre>
+      </div>
+    </div>
+
+    <!-- tilt -->
+    <div>
+      <div class="code-wrap">
+        <div class="code-header">
+          <span class="code-lang">JavaScript · Tilt 3D</span>
+          <button class="copy-btn" onclick="copyCode(this,'tilt-code')">Copiar</button>
+        </div>
+        <pre class="code" id="tilt-code"><span class="ck">const</span> MAX_TILT = <span class="cv">6</span>; <span class="cm">// graus máx</span>
+
+document.<span class="cf">querySelectorAll</span>(<span class="cs">'.card'</span>).<span class="cf">forEach</span>(card => {
+
+  card.<span class="cf">addEventListener</span>(<span class="cs">'mousemove'</span>, e => {
+    <span class="ck">const</span> r  = card.<span class="cf">getBoundingClientRect</span>();
+    <span class="ck">const</span> dx = (e.clientX - r.left - r.width  / <span class="cv">2</span>) / (r.width  / <span class="cv">2</span>);
+    <span class="ck">const</span> dy = (e.clientY - r.top  - r.height / <span class="cv">2</span>) / (r.height / <span class="cv">2</span>);
+
+    <span class="ck">const</span> rotX = (<span class="cv">-dy</span> * MAX_TILT).<span class="cf">toFixed</span>(<span class="cv">2</span>);
+    <span class="ck">const</span> rotY = (  dx * MAX_TILT).<span class="cf">toFixed</span>(<span class="cv">2</span>);
+
+    card.style.transform =
+      <span class="cs">`perspective(900px) rotateX(<span class="co">${rotX}</span>deg)</span>
+<span class="cs">       rotateY(<span class="co">${rotY}</span>deg) scale3d(1.02,1.02,1.02)`</span>;
+    card.style.transition =
+      <span class="cs">'transform .08s ease, box-shadow .15s ease'</span>;
+    card.style.boxShadow =
+      <span class="cs">`<span class="co">${-dx*6}</span>px <span class="co">${-dy*6+12}</span>px 32px rgba(113,2,82,.16),</span>
+<span class="cs">       <span class="co">${-dx*2}</span>px <span class="co">${-dy*2+4}</span>px 10px rgba(113,2,82,.08)`</span>;
+
+    <span class="cm">// shimmer segue cursor</span>
+    card.style.<span class="cf">setProperty</span>(<span class="cs">'--mx'</span>,
+      ((e.clientX - r.left) / r.width  * <span class="cv">100</span>).<span class="cf">toFixed</span>(<span class="cv">1</span>) + <span class="cs">'%'</span>);
+    card.style.<span class="cf">setProperty</span>(<span class="cs">'--my'</span>,
+      ((e.clientY - r.top)  / r.height * <span class="cv">100</span>).<span class="cf">toFixed</span>(<span class="cv">1</span>) + <span class="cs">'%'</span>);
+  });
+
+  card.<span class="cf">addEventListener</span>(<span class="cs">'mouseleave'</span>, () => {
+    card.style.transition =
+      <span class="cs">'transform .55s cubic-bezier(.03,.98,.52,.99),</span>
+<span class="cs">       box-shadow .4s ease'</span>;
+    card.style.transform =
+      <span class="cs">'perspective(900px) rotateX(0deg)</span>
+<span class="cs">       rotateY(0deg) scale3d(1,1,1)'</span>;
+    card.style.boxShadow = <span class="cs">''</span>;
+  });
+});</pre>
+      </div>
+    </div>
+
+  </div><!-- /code grid -->
+
+  <!-- ── CSS ── -->
+  <div style="margin-top:24px;">
+    <div class="code-wrap">
+      <div class="code-header">
+        <span class="code-lang">CSS · Card Base + Shimmer</span>
+        <button class="copy-btn" onclick="copyCode(this,'css-code')">Copiar</button>
+      </div>
+      <pre class="code" id="css-code"><span class="cm">/* Wrapper — define perspectiva */</span>
+<span class="co">.card-wrap</span> {
+  <span class="ck">perspective</span>: <span class="cv">900px</span>;
+  <span class="ck">min-width</span>: <span class="cv">0</span>; <span class="cm">/* evita overflow em grid/flex */</span>
+}
+
+<span class="cm">/* Card base */</span>
+<span class="co">.card</span> {
+  <span class="ck">border-radius</span>: <span class="cv">20px</span>;
+  <span class="ck">transform-style</span>: <span class="cv">preserve-3d</span>;
+  <span class="ck">will-change</span>: <span class="cv">transform</span>;
+  <span class="ck">transition</span>: <span class="cv">transform .45s cubic-bezier(.03,.98,.52,.99),
+              box-shadow .3s ease</span>;
+  <span class="ck">overflow</span>: <span class="cv">hidden</span>;
+  <span class="ck">cursor</span>: <span class="cv">pointer</span>;
+}
+
+<span class="cm">/* Shimmer de luz segue o cursor */</span>
+<span class="co">.card::before</span> {
+  <span class="ck">content</span>: <span class="cs">''</span>;
+  <span class="ck">position</span>: <span class="cv">absolute</span>; <span class="ck">inset</span>: <span class="cv">0</span>;
+  <span class="ck">border-radius</span>: <span class="cv">inherit</span>;
+  <span class="ck">background</span>: radial-gradient(
+    circle at var(<span class="cs">--mx</span>, 50%) var(<span class="cs">--my</span>, 50%),
+    <span class="cv">rgba(255,255,255,.22)</span> 0%, transparent 60%
+  );
+  <span class="ck">opacity</span>: <span class="cv">0</span>;
+  <span class="ck">transition</span>: <span class="cv">opacity .2s ease</span>;
+  <span class="ck">pointer-events</span>: <span class="cv">none</span>;
+  <span class="ck">z-index</span>: <span class="cv">10</span>;
+}
+<span class="co">.card:hover::before</span> { <span class="ck">opacity</span>: <span class="cv">1</span>; }</pre>
+    </div>
+  </div>
+
+  <div class="inner-divider"></div>
+
+  <!-- ── CHECKLIST ── -->
+  <p style="font-family:'Inter',sans-serif;font-size:13px;font-weight:600;color:#0f0a0e;margin-bottom:16px;">Checklist de implementação</p>
+  <ul class="checklist">
+    <li><span class="check">✓</span> <span>Wrapper <code>.card-wrap</code> com <code>perspective: 900px</code> — sem isso o tilt não funciona em 3D</span></li>
+    <li><span class="check">✓</span> <span>CSS custom properties <code>--mx</code> e <code>--my</code> setadas via JS no <code>mousemove</code> para o shimmer</span></li>
+    <li><span class="check">✓</span> <span>Counter só dispara 1× via flag <code>played</code> — evita replay indesejado ao scrollar para cima</span></li>
+    <li><span class="check">✓</span> <span>Decimais formatados com vírgula BR via <code>.replace('.', ',')</code></span></li>
+    <li><span class="check">✓</span> <span>Grid <code>grid-template-columns: 280px 240px 160px 240px</code> — col 3 mais estreita é intencional</span></li>
+    <li><span class="warn">⚠</span> <span><code>overflow: hidden</code> no <code>.card</code> corta a sombra no tilt — a sombra é aplicada via <code>box-shadow</code> inline (não é cortada)</span></li>
+    <li><span class="warn">⚠</span> <span>Tilt desabilitado em touch — adicionar detecção de <code>ontouchstart</code> e pular listeners se mobile</span></li>
+    <li><span class="warn">⚠</span> <span>Respeitar <code>prefers-reduced-motion</code> — envolver o JS de tilt e counter em checagem da media query</span></li>
+  </ul>
+
+  <div style="margin-top:20px;">
+    <div class="note-box">
+      <span class="note-icon">💡</span>
+      <span>Para <strong>React</strong>: extrair a lógica de tilt em um hook <code>useTilt(ref, { maxAngle: 6 })</code> e o counter em <code>useCountUp(target, { duration: 1900, easing: easeOutExpo })</code>. O IntersectionObserver fica dentro do hook com cleanup no unmount.</span>
+    </div>
+  </div>
+
+</div><!-- /handoff -->
+
+
+<script>
+/* ─── TILT ─── */
+const MAX_TILT = 6;
+document.querySelectorAll('.card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r  = card.getBoundingClientRect();
+    const dx = (e.clientX - r.left - r.width  / 2) / (r.width  / 2);
+    const dy = (e.clientY - r.top  - r.height / 2) / (r.height / 2);
+    const rotX = (-dy * MAX_TILT).toFixed(2);
+    const rotY = ( dx * MAX_TILT).toFixed(2);
+    card.style.transform  = `perspective(900px) rotateX(${rotX}deg) rotateY(${rotY}deg) scale3d(1.02,1.02,1.02)`;
+    card.style.transition = 'transform .08s ease, box-shadow .15s ease';
+    card.style.boxShadow  = `${-dx*6}px ${-dy*6+12}px 32px rgba(113,2,82,.16), ${-dx*2}px ${-dy*2+4}px 10px rgba(113,2,82,.08)`;
+    card.style.setProperty('--mx', ((e.clientX - r.left) / r.width  * 100).toFixed(1) + '%');
+    card.style.setProperty('--my', ((e.clientY - r.top)  / r.height * 100).toFixed(1) + '%');
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transition = 'transform .55s cubic-bezier(.03,.98,.52,.99), box-shadow .4s ease';
+    card.style.transform  = 'perspective(900px) rotateX(0deg) rotateY(0deg) scale3d(1,1,1)';
+    card.style.boxShadow  = '';
+  });
+});
+
+/* ─── COUNTER ─── */
+const COUNTERS = [
+  { id:'c1', target:500, decimal:false },
+  { id:'c2', target:1.8, decimal:true  },
+  { id:'c3', target:4.9, decimal:true  },
+  { id:'c4', target:60,  decimal:false },
+  { id:'c5', target:1.1, decimal:true  },
+];
+function easeOutExpo(t) { return t >= 1 ? 1 : 1 - Math.pow(2, -10 * t); }
+function fmt(v, dec) { return dec ? v.toFixed(1).replace('.',',') : Math.floor(v)+''; }
+function animateOne(cfg, delay) {
+  const el = document.getElementById(cfg.id);
+  if (!el) return;
+  const DUR = 1900; let t0 = null;
+  setTimeout(() => {
+    (function tick(ts) {
+      if (!t0) t0 = ts;
+      const p = Math.min((ts - t0) / DUR, 1);
+      el.textContent = fmt(easeOutExpo(p) * cfg.target, cfg.decimal);
+      if (p < 1) requestAnimationFrame(tick);
+      else el.textContent = fmt(cfg.target, cfg.decimal);
+    })(performance.now());
+  }, delay);
+}
+function runCounters() {
+  COUNTERS.forEach((cfg, i) => {
+    const el = document.getElementById(cfg.id);
+    if (el) el.textContent = cfg.decimal ? '0,0' : '0';
+    animateOne(cfg, i * 130);
+  });
+}
+function resetAndPlay() {
+  COUNTERS.forEach(cfg => {
+    const el = document.getElementById(cfg.id);
+    if (el) el.textContent = cfg.decimal ? '0,0' : '0';
+  });
+  setTimeout(runCounters, 60);
+}
+window.addEventListener('load', () => setTimeout(runCounters, 400));
+
+/* ─── COPY ─── */
+function copyCode(btn, id) {
+  const pre = document.getElementById(id);
+  const text = pre.innerText;
+  navigator.clipboard.writeText(text).then(() => {
+    btn.textContent = 'Copiado ✓';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copiar'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
