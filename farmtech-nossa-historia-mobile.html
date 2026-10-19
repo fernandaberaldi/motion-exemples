@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Farmtech Nossa História Mobile</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Gloock&family=Inter:wght@400;500&display=swap">
+<style>
+/* Layout mobile: tela de ~390px; um card por vez em largura cheia, swipe horizontal, régua de anos abaixo. No desktop, a mesma tela aparece centralizada. */
+:root{
+  --bg:#ffffff;
+  --desk:#eef0ec;
+  --card:#f8f8f7;
+  --line:#e2e3e0;
+  --fg:#111311;
+  --muted:#5f625d;
+  --soft:#a3a6a1;
+  --pill-a:#e9f9b8;
+  --pill-b:#b9e3f7;
+  --display:"Gloock","Iowan Old Style",Georgia,serif;
+  --body:"Inter",system-ui,-apple-system,"Segoe UI",sans-serif;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+html,body{background:var(--desk)}
+body{color:var(--fg);font-family:var(--body);margin:0}
+
+.phone{max-width:420px;margin:0 auto;background:var(--bg);min-height:100vh;overflow:hidden}
+@media (min-width:500px){
+  body{padding-block:32px}
+  .phone{border-radius:28px;min-height:0;box-shadow:0 0 0 1px var(--line)}
+}
+
+.intro{padding:48px max(14px,env(safe-area-inset-right,0px)) 28px max(14px,env(safe-area-inset-left,0px))}
+.eyebrow{display:inline-block;padding:6px 13px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:#3d5a22;font-size:13px}
+h1{font-family:var(--display);font-weight:400;font-size:31px;line-height:1.12;letter-spacing:-.005em;margin:26px 0 0;text-wrap:balance}
+
+.track{
+  display:flex;gap:12px;overflow-x:auto;overflow-y:hidden;
+  scroll-snap-type:x mandatory;scrollbar-width:none;overscroll-behavior-x:contain;
+  padding-left:max(14px,env(safe-area-inset-left,0px));
+  padding-right:max(14px,env(safe-area-inset-right,0px));
+  scroll-padding-left:max(14px,env(safe-area-inset-left,0px));
+  align-items:stretch;
+}
+.track::-webkit-scrollbar{display:none}
+.track:focus-visible{outline:2px solid var(--fg);outline-offset:-2px}
+.card{
+  flex:0 0 100%;scroll-snap-align:start;scroll-snap-stop:always;
+  display:flex;flex-direction:column;justify-content:space-between;gap:28px;
+  background:var(--card);border:1px solid var(--line);border-radius:18px;padding:6px;
+}
+.copy{padding:28px 28px 0;display:flex;flex-direction:column;gap:14px;min-width:0}
+.tag{align-self:flex-start;display:inline-flex;align-items:center;gap:8px;padding:5px 12px;border-radius:999px;
+  background:linear-gradient(90deg,var(--pill-a),var(--pill-b));color:#0d0f0d;font-size:13px;font-weight:500}
+.tag::before{content:"";width:6px;height:6px;border-radius:50%;background:#0d0f0d}
+.card h2{font-weight:400;font-size:22px;line-height:1.25;letter-spacing:-.01em;margin:6px 0 0;text-wrap:balance}
+.card p{margin:0;color:var(--muted);font-size:14px;line-height:1.6}
+
+.media{position:relative;border-radius:12px;overflow:hidden;min-height:310px;
+  background:radial-gradient(120% 70% at 70% 30%,#a9a39a 0%,transparent 60%),linear-gradient(180deg,#6f665b 0%,#4a4036 55%,#2b241d 100%)}
+.media.alt{background:radial-gradient(90% 80% at 85% 20%,#8c8378 0%,transparent 55%),linear-gradient(160deg,#3d3833,#1f1b17)}
+.media .slot{position:absolute;top:14px;left:14px;font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.6)}
+.media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 25%,rgba(20,16,12,.6) 100%)}
+.media ul{position:absolute;z-index:1;left:24px;right:20px;bottom:24px;margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.media li{display:grid;grid-template-columns:20px 1fr;gap:8px;color:#f3efe9;font-size:12.5px;line-height:1.4}
+.media li svg{width:18px;height:18px;margin-top:0}
+
+.years{display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;
+  padding:26px max(14px,env(safe-area-inset-right,0px)) 40px max(14px,env(safe-area-inset-left,0px))}
+.years::-webkit-scrollbar{display:none}
+.year{all:unset;cursor:pointer;font-size:17px;color:var(--soft);font-variant-numeric:tabular-nums;transition:color .3s ease;white-space:nowrap;padding:6px 0}
+.year:focus-visible{outline:2px solid var(--fg);outline-offset:3px;border-radius:4px}
+.year.is-active{color:var(--fg)}
+.seg{flex:0 0 36px;height:1.5px;margin:0 10px;background:var(--line);position:relative}
+.seg i{position:absolute;inset:0;background:var(--fg);transform-origin:left;transform:scaleX(0)}
+@media (prefers-reduced-motion:reduce){.year{transition:none}}
+</style>
+</head>
+<body>
+<div class="phone">
+<header class="intro">
+  <span class="eyebrow">Nossa história</span>
+  <h1>Transformando a forma como o crédito acontece no agro</h1>
+</header>
+<section aria-label="Linha do tempo Farmtech">
+  <div class="track" id="track" tabindex="0" aria-label="Marcos por ano. Deslize para os lados para navegar."></div>
+  <nav class="years" id="years" aria-label="Anos"></nav>
+</section>
+</div>
+
+<script>
+const tick = '<svg width="22" height="22" viewBox="0 0 22 22" fill="none" aria-hidden="true"><path d="M11 1v7M11 14v7M1 11h7M14 11h7" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>';
+
+const DATA = [
+  {year:2017, tag:"O início", title:"Nasce a pioneira do crédito digital rural no Brasil",
+   text:"A Farmtech foi criada por executivos com mais de 20 anos de mercado de crédito agrícola, para transformar a forma como o crédito acontece no agronegócio. Iniciamos a viabilização do crédito para a cadeia de insumos.",
+   bullets:["Fundação da Farmtech.","Pioneirismo em crédito digital rural no Brasil.","Primeiras operações voltadas à cadeia de insumos agrícolas.","Desenvolvimento do motor proprietário de análise de crédito e risco."]},
+  {year:2018, tag:"Primeiras operações B2B", title:"O capital chega à cadeia de insumos", alt:true,
+   text:"Estruturamos o primeiro veículo de captação com investidores institucionais: um CRA de R$ 355 milhões, com classificação de risco AAA(bra) pela Fitch em sua classe sênior. Foi a prova de que o crédito originado na cadeia de insumos podia ser estruturado com o mesmo padrão de governança do mercado de capitais.",
+   bullets:["Estreia na captação com investidores institucionais.","Emissão de CRA no valor de R$ 355 milhões.","Recebíveis originados na cadeia de insumos agrícolas.","Estrutura com a governança exigida pelo mercado de capitais."]},
+  {year:2019, tag:"Escala em fundos", title:"A estrutura de funding acompanha o ritmo da cadeia",
+   text:"Com um FIDC de R$ 800 milhões e o início de um novo fundo de R$ 1 bilhão, ambos AAA(bra), passamos a operar com capital disponível na escala que a cadeia de insumos exigia. O crédito deixou de depender da janela de captação e passou a acompanhar o calendário da safra.",
+   bullets:["FIDC de R$ 800 milhões com nota máxima da Fitch.","Novo fundo de R$ 1 bilhão em fase de lançamento.","Volume de capital à altura da demanda da cadeia de insumos.","Liberação de crédito alinhada ao ciclo da safra."]},
+  {year:2020, tag:"Jornada digital", title:"O crédito entra na jornada de venda do parceiro", alt:true,
+   text:"Integramos o crédito ao processo comercial dos parceiros. A decisão passou a acontecer dentro da venda. Um passo importante para aproximar inteligência, tecnologia e tomada de decisão do momento em que o negócio realmente acontece.",
+   bullets:["Crédito incorporado ao fluxo comercial dos parceiros.","Jornada digital de Aprovação no próprio momento da negociação, com pré-aprovação.","Inteligência e tecnologia a serviço da decisão.","Decisão de crédito no ponto de venda."]},
+  {year:2021, tag:"Escala", title:"Entrada no varejo: revenda de insumos",
+   text:"Estruturamos R$ 2,3 bilhões em novos fundos e ampliamos a atuação junto às revendas. O funding deixou de acompanhar a operação e passou a antecipá-la, criando espaço para que o crédito chegasse a mais pontos da cadeia de insumos.",
+   bullets:["R$ 2,3 bilhões captados em novos fundos.","Presença ampliada entre as revendas de insumos.","Capital disponível antes da demanda surgir.","Crédito chegando a mais elos da cadeia."]},
+  {year:2022, tag:"Consolidação", title:"R$ 13 bilhões viabilizados e uma cadeia conectada", alt:true,
+   text:"A Farmtech chegou a 13 mil produtores atendidos, com parceiros que respondiam por cerca de 60% do mercado agro. No mesmo ano, estruturamos a primeira solução de crédito indexada ao dólar, atendendo a uma demanda concreta dos parceiros de insumos.",
+   bullets:["Rede de parceiros cada vez mais conectada.","13 mil produtores atendidos.","Parceiros com cerca de 60% do mercado agro.","Primeira linha de crédito atrelada ao dólar."]},
+  {year:2023, tag:"Motor de crédito proprietário", title:"A inteligência de crédito passa a ser nossa",
+   text:"Colocamos em escala modelos de risco próprios, construídos com dados da própria cadeia somados às informações do sistema financeiro. É o marco em que a Farmtech deixa de depender de análise de terceiros e passa a operar com motor de crédito proprietário — a base da infraestrutura que sustenta as operações até hoje.",
+   bullets:["Modelos de risco desenvolvidos internamente.","Dados da cadeia combinados aos do sistema financeiro.","Fim da dependência de análises externas.","Base tecnológica das operações atuais."]},
+  {year:2024, tag:"Novo ciclo", title:"Um novo impulso para acelerar nossa transformação.", alt:true,
+   text:"Recebemos nosso primeiro aporte de equity, fortalecendo nossa capacidade de investir em tecnologia, pessoas e novas soluções. Um marco que acelerou a evolução da Farmtech como infraestrutura de crédito para todo o agronegócio.",
+   bullets:["Primeiro investimento de equity da companhia.","Expansão dos times e da capacidade operacional.","Aceleração do desenvolvimento de novas soluções.","Fortalecimento da estratégia de crescimento."]},
+  {year:2025, tag:"Estrutura própria de crédito", title:"Da gestão de fundos à operação de crédito própria",
+   text:"Com a SCD em operação, passamos a originar, decidir e operar crédito dentro da nossa própria estrutura regulada. No mesmo ano, a tecnologia começou a ser oferecida como serviço aos parceiros, ampliando o alcance da infraestrutura para além dos fundos.",
+   bullets:["SCD própria em operação.","Originação e decisão de crédito dentro de casa.","Tecnologia oferecida como serviço aos parceiros.","Atuação além da gestão de fundos."]},
+  {year:2026, tag:"Infraestrutura", title:"A infraestrutura que conecta toda a cadeia do agronegócio", alt:true,
+   text:"Hoje, a Farmtech atua como uma infraestrutura integrada de crédito para o agronegócio. Nossa tecnologia transforma dados, comportamento e inteligência em decisões mais rápidas, seguras e escaláveis, conectando indústrias, distribuidores, concessionárias, produtores rurais e investidores em um único ecossistema.",
+   bullets:["Infraestrutura de crédito integrada para o agro.","Inteligência de dados guiando cada aprovação.","Respostas ágeis, com segurança e em escala.","Todos os elos da cadeia em uma só plataforma."]},
+];
+
+const track=document.getElementById('track'), years=document.getElementById('years');
+
+DATA.forEach((d,i)=>{
+  const c=document.createElement('article');
+  c.className='card';
+  c.innerHTML=`
+    <div class="copy">
+      <span class="tag">${d.tag}</span>
+      <h2 class="${d.todo?'todo':''}">${d.title}</h2>
+      <p class="${d.todo?'todo':''}">${d.text}</p>
+    </div>
+    <div class="media ${d.alt?'alt':''}">
+      <span class="slot">Imagem ${d.year}</span>
+      <ul>${d.bullets.map(b=>`<li>${tick}<span>${b}</span></li>`).join('')}</ul>
+    </div>`;
+  track.appendChild(c);
+  const b=document.createElement('button');
+  b.className='year'; b.id='btn-'+d.year; b.textContent=d.year;
+  b.addEventListener('click',()=>goTo(i));
+  years.appendChild(b);
+  if(i<DATA.length-1){const s=document.createElement('span');s.className='seg';s.innerHTML='<i></i>';years.appendChild(s);}
+});
+
+const cards=[...track.children], btns=[...years.querySelectorAll('.year')], segs=[...years.querySelectorAll('.seg i')];
+const N=cards.length;
+const reduce=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
+let active=-1;
+
+// posição contínua (0 … N-1) a partir do scrollLeft
+function position(){
+  const pad=parseFloat(getComputedStyle(track).paddingLeft);
+  const xs=cards.map(c=>c.offsetLeft-pad);
+  const x=track.scrollLeft;
+  for(let i=0;i<N-1;i++){
+    if(x<xs[i+1]) return i+Math.max(0,(x-xs[i])/(xs[i+1]-xs[i]));
+  }
+  return N-1;
+}
+
+function update(){
+  const f=position();
+  segs.forEach((s,k)=>{s.style.transform=`scaleX(${Math.min(1,Math.max(0,f-k))})`;});
+  const a=Math.min(N-1,Math.round(f));
+  if(a!==active){
+    active=a;
+    btns.forEach((b,k)=>{b.classList.toggle('is-active',k===a);b.setAttribute('aria-current',k===a?'step':'false');});
+    const b=btns[a];
+    years.scrollTo({left:b.offsetLeft-years.clientWidth/2+b.offsetWidth/2,behavior:reduce()?'auto':'smooth'});
+  }
+}
+
+function goTo(i){
+  i=Math.max(0,Math.min(N-1,i));
+  const pad=parseFloat(getComputedStyle(track).paddingLeft);
+  track.scrollTo({left:cards[i].offsetLeft-pad,behavior:reduce()?'auto':'smooth'});
+}
+
+// roda do mouse vertical vira scroll horizontal (um card por gesto)
+let lock=false;
+track.addEventListener('wheel',e=>{
+  if(Math.abs(e.deltaX)>Math.abs(e.deltaY)) return; // swipe horizontal nativo do trackpad
+  const dir=Math.sign(e.deltaY);
+  const atStart=track.scrollLeft<=1, atEnd=track.scrollLeft>=track.scrollWidth-track.clientWidth-1;
+  if((dir<0&&atStart)||(dir>0&&atEnd)) return; // nas pontas, deixa a página rolar
+  e.preventDefault();
+  if(lock||Math.abs(e.deltaY)<4) return;
+  lock=true;
+  goTo(Math.round(position())+dir);
+  setTimeout(()=>lock=false,reduce()?150:550);
+},{passive:false});
+
+// teclado
+track.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight'){e.preventDefault();goTo(active+1);}
+  if(e.key==='ArrowLeft'){e.preventDefault();goTo(active-1);}
+});
+
+// arrastar com o mouse
+let drag=null;
+track.addEventListener('pointerdown',e=>{
+  if(e.pointerType!=='mouse')return;
+  drag={x:e.clientX,left:track.scrollLeft,moved:false};
+  track.style.scrollSnapType='none';
+});
+addEventListener('pointermove',e=>{
+  if(!drag)return;
+  const dx=e.clientX-drag.x;
+  if(Math.abs(dx)>3)drag.moved=true;
+  track.scrollLeft=drag.left-dx;
+});
+addEventListener('pointerup',()=>{
+  if(!drag)return;
+  const moved=drag.moved, start=drag.left; drag=null;
+  track.style.scrollSnapType='';
+  if(moved){const f=position(); const base=Math.round(f); goTo(track.scrollLeft>start?Math.ceil(f-0.15):Math.floor(f+0.15));}
+});
+
+let raf=0;
+track.addEventListener('scroll',()=>{if(!raf)raf=requestAnimationFrame(()=>{raf=0;update();});},{passive:true});
+addEventListener('resize',update);
+document.fonts&&document.fonts.ready.then(update);
+update();
+</script>
+</body>
+</html>
