@@ -1,0 +1,119 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>FarmOne Card Hover</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #00231d;
+    --lime: 225, 249, 196;
+    --ease-out: cubic-bezier(0, 0, 0.58, 1); /* Figma "Ease out" */
+    --dur: 300ms;                            /* Smart Animate 300ms */
+  }
+  * { box-sizing: border-box; margin: 0; }
+  body {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    background: #001a15;
+    font-family: "Inter", system-ui, sans-serif;
+  }
+
+  .card {
+    position: relative;
+    width: 287px;
+    height: 214px;
+    padding: 12px;
+    border-radius: 12px;
+    background: var(--bg);
+    border: 1px solid rgba(var(--lime), .10);
+    overflow: hidden;
+    isolation: isolate;
+    cursor: pointer;
+  }
+
+  /* camada "blur" — só existe no Hover, entra em dissolve */
+  .blur {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    opacity: 0;
+    transition: opacity var(--dur) var(--ease-out);
+    border-radius: inherit;
+    overflow: hidden;
+  }
+  .blur::before {
+    content: "";
+    position: absolute;
+    inset: -40px;
+    background:
+      radial-gradient(55% 40% at 52% 40%, rgba(110,150,105,.55), transparent 70%),
+      linear-gradient(37deg,
+        #00231d 0%, #00231d 50%,
+        #2a4f34 56%, #557f57 61%,
+        #2f5d31 70%, #2c5a2e 84%, #1c4329 100%);
+    filter: blur(22px);
+  }
+  .card:hover .blur,
+  .card.is-hover .blur { opacity: 1; }
+
+  .icon {
+    width: 48px;
+    height: 48px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    background: rgba(var(--lime), .10);
+    border: 1px solid rgba(var(--lime), .15);
+  }
+
+  .content {
+    margin-top: 16px;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+  .title {
+    color: #fafafa;
+    font-size: 16px;
+    line-height: 24px;
+  }
+  .desc {
+    color: #d6d7d5;
+    font-size: 14px;
+    line-height: 20px;
+  }
+</style>
+</head>
+<body>
+  <div class="card" id="card">
+    <div class="blur" aria-hidden="true"></div>
+
+    <div class="icon">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M16.062 3.00401C16.734 2.33201 17.824 2.33101 18.496 3.00401V3.00401C19.168 3.67601 19.168 4.76601 18.496 5.43801L10.722 13.207C10.534 13.394 10.28 13.5 10.015 13.5H8V11.485C8 11.22 8.105 10.966 8.293 10.778L16.062 3.00401V3.00401Z" fill-rule="evenodd" clip-rule="evenodd" fill="#E1F9C4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#E1F9C4"/>
+        <path d="M15 13.5H17" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#E1F9C4"/>
+        <path d="M7 17.5H17" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#E1F9C4"/>
+        <path d="M19 10.5V10.5C20.105 10.5 21 11.395 21 12.5V19.5C21 20.605 20.105 21.5 19 21.5H5C3.895 21.5 3 20.605 3 19.5V12.5C3 11.395 3.895 10.5 5 10.5V10.5" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#E1F9C4"/>
+        <path d="M14.0703 5L16.5003 7.43" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#E1F9C4"/>
+        <path d="M10.0664 5.56602L11.7074 3.92502C12.1814 3.45102 12.9504 3.45102 13.4254 3.92502V3.92502C13.8994 4.39902 13.8994 5.16802 13.4254 5.64302L12.2844 6.78402" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" stroke="#E1F9C4"/>
+      </svg>
+    </div>
+
+    <div class="content">
+      <p class="title">FarmOne</p>
+      <p class="desc">Soluções customizadas que agregam valor à jornada de comercialização de insumos a prazo.</p>
+    </div>
+  </div>
+
+<script>
+  // toque no mobile alterna o estado (não existe mouse enter/leave)
+  const card = document.getElementById('card');
+  card.addEventListener('touchstart', () => card.classList.toggle('is-hover'), { passive: true });
+</script>
+</body>
+</html>
