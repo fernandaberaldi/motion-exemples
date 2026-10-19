@@ -69,11 +69,12 @@ h1{font-family:var(--display);font-weight:400;font-size:31px;line-height:1.12;le
 
 .years{display:flex;align-items:center;overflow-x:auto;scrollbar-width:none;
   padding:26px max(14px,env(safe-area-inset-right,0px)) 40px max(14px,env(safe-area-inset-left,0px))}
+.years{-webkit-mask-image:linear-gradient(90deg,transparent 0,#000 24px,#000 calc(100% - 40px),transparent 100%);mask-image:linear-gradient(90deg,transparent 0,#000 24px,#000 calc(100% - 40px),transparent 100%)}
 .years::-webkit-scrollbar{display:none}
 .year{all:unset;cursor:pointer;font-size:17px;color:var(--soft);font-variant-numeric:tabular-nums;transition:color .3s ease;white-space:nowrap;padding:6px 0}
 .year:focus-visible{outline:2px solid var(--fg);outline-offset:3px;border-radius:4px}
 .year.is-active{color:var(--fg)}
-.seg{flex:0 0 36px;height:1.5px;margin:0 10px;background:var(--line);position:relative}
+.seg{flex:0 0 32px;height:1.5px;margin:0 10px;background:var(--line);position:relative}
 .seg i{position:absolute;inset:0;background:var(--fg);transform-origin:left;transform:scaleX(0)}
 @media (prefers-reduced-motion:reduce){.year{transition:none}}
 </style>
