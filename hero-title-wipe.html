@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Hero Title Motion</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Young+Serif&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400&display=swap">
+<style>
+/* Layout: hero fiel ao Figma (proporção 2576×1342), sem imagem + barra de controle e specs de timing abaixo */
+:root {
+  --page: #f3f4ef; --ink: #14201a; --muted: #5d6a62; --line: #d9ddd4;
+  --hero-base: #06201a; --lime: #d4fdb4; --lime-ink: #0f2a12; --white: #ffffff;
+  --display: "Young Serif", "Fraunces", Georgia, serif;
+  --body: "Inter", system-ui, sans-serif;
+  --mono: "JetBrains Mono", ui-monospace, monospace;
+  --ease-out: cubic-bezier(.22,1,.36,1);
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --page:#0d1311; --ink:#e7ece6; --muted:#93a097; --line:#26302b; color-scheme: dark } }
+:root[data-theme="dark"] { --page:#0d1311; --ink:#e7ece6; --muted:#93a097; --line:#26302b; color-scheme: dark }
+
+body { background: var(--page); color: var(--ink); font-family: var(--body); }
+.wrap { max-width: 1280px; margin: 0 auto; padding-block: 24px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid; gap: 16px; }
+
+/* Controls */
+.bar { display: flex; justify-content: flex-end; }
+.replay { background: var(--lime); color: var(--lime-ink); display: inline-flex; gap: 8px; align-items: center; }
+.ctrl-r { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+.speed { font: 400 12px var(--mono); color: var(--muted); display: flex; gap: 6px; align-items: center; }
+.speed select { font: inherit; color: var(--ink); background: transparent; border: 1px solid var(--line); border-radius: 8px; padding: 6px; }
+button:focus-visible, select:focus-visible { outline: 2px solid #7ac74f; outline-offset: 2px; }
+
+/* Hero */
+.stage { container-type: inline-size; }
+.hero { position: relative; overflow: hidden; border-radius: clamp(14px, 1.6cqw, 28px);
+  aspect-ratio: 2576 / 1342; background: var(--hero-base); color: var(--white); isolation: isolate; }
+
+.content { position: absolute; inset: auto 1.2% 13.2% 3.4%; display: flex; align-items: flex-end; justify-content: space-between; gap: 4cqw; }
+.left { display: grid; gap: 2.6cqw; justify-items: start; min-width: 0; }
+.tag { font: 400 1.05cqw/1 var(--body); color: #e6f2c8; padding: 1.05cqw 1.1cqw; border: 1px solid rgba(230,242,200,.28);
+  background: rgba(255,255,255,.06); border-radius: .5cqw; backdrop-filter: blur(4px); }
+h1 { margin: 0; font: 400 4.55cqw/1.03 var(--display); letter-spacing: -.01em; }
+h1 .line { display: block; white-space: nowrap; }
+.right { width: 33.6%; display: grid; gap: 1.4cqw; padding-bottom: .1cqw; }
+.right p { margin: 0; font: 400 1.1cqw/1.55 var(--body); color: rgba(255,255,255,.82); }
+.ctas { display: flex; gap: .7cqw; align-items: center; }
+.cta-split { display: inline-flex; gap: .2cqw; padding: .12cqw; border-radius: .7cqw; border: 1px solid rgba(212,253,180,.35); }
+.btn { font: 400 1.15cqw/1 var(--body); border-radius: .6cqw; padding: 1cqw .95cqw; white-space: nowrap; }
+.btn.lime { background: var(--lime); color: var(--lime-ink); }
+.btn.arrow { background: var(--lime); color: var(--lime-ink); padding-inline: 1cqw; }
+.btn.white { background: var(--white); color: #10140f; padding-inline: 1cqw; }
+
+@container (max-width: 760px) {
+  .hero { aspect-ratio: auto; min-height: 640px; }
+  .content { position: relative; inset: auto; flex-direction: column; align-items: stretch; padding: 120px 20px 28px; gap: 20px; }
+  .left { gap: 16px; }
+  .tag { font-size: 12px; padding: 8px 10px; border-radius: 6px; }
+  h1 { font-size: clamp(30px, 8.6cqw, 48px); }
+  h1 .line { white-space: normal; }
+  .right { width: auto; gap: 16px; }
+  .right p { font-size: 14px; }
+  .ctas { flex-wrap: wrap; gap: 8px; }
+  .cta-split { border-radius: 10px; padding: 2px; gap: 3px; }
+  .btn { font-size: 14px; padding: 12px 14px; border-radius: 8px; }
+}
+
+/* ---------- Motion ---------- */
+
+.hero[data-play] .tag { animation: fadeUp calc(700ms * var(--s,1)) var(--ease-out) both; animation-delay: calc(150ms * var(--s,1)); }
+.hero[data-play] .right p { animation: fadeUp calc(800ms * var(--s,1)) var(--ease-out) both; animation-delay: calc(var(--after) * var(--s,1)); }
+.hero[data-play] .ctas > * { animation: fadeUp calc(700ms * var(--s,1)) var(--ease-out) both; }
+.hero[data-play] .ctas > :nth-child(1) { animation-delay: calc((var(--after) + 150ms) * var(--s,1)); }
+.hero[data-play] .ctas > :nth-child(2) { animation-delay: calc((var(--after) + 230ms) * var(--s,1)); }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: none; } }
+
+/* C — wipe horizontal */
+.hero[data-v="wipe"] { --after: 1200ms; }
+.hero[data-v="wipe"] h1 .in { display: inline-block; padding-bottom: .14em; margin-bottom: -.14em; }
+.hero[data-v="wipe"][data-play] h1 .in { animation: wipe calc(1100ms * var(--s,1)) cubic-bezier(.65,0,.35,1) both;
+  animation-delay: calc((300ms + var(--i) * 160ms) * var(--s,1)); }
+@keyframes wipe { from { clip-path: inset(0 100% 0 0); transform: translateX(-.15em); } to { clip-path: inset(0 0 0 0); transform: none; } }
+
+@media (prefers-reduced-motion: reduce) { .hero[data-play] * { animation: none !important; } }
+
+</style>
+
+</head>
+<body>
+<div class="wrap">
+  <div class="bar">
+    <div class="ctrl-r">
+      <label class="speed" for="speed">velocidade
+        <select id="speed"><option value="1">1×</option><option value="2">0.5×</option><option value="4">0.25×</option></select>
+      </label>
+      <button class="replay" id="replay">↺ Replay</button>
+    </div>
+  </div>
+
+  <div class="stage">
+    <section class="hero" id="hero" data-v="wipe">
+      <div class="content">
+        <div class="left">
+          <span class="tag">Lorem ipsum dolor sit</span>
+          <h1 id="title" aria-label="Esse é um exemplo da animação de Hero Title">
+            <span class="line"><span class="in">Esse é um exemplo</span></span>
+            <span class="line"><span class="in">da animação de</span></span>
+            <span class="line"><span class="in">Hero Title</span></span>
+          </h1>
+        </div>
+        <div class="right">
+          <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+          <div class="ctas">
+            <span class="cta-split"><span class="btn lime">Button</span><span class="btn arrow">→</span></span>
+            <span class="btn white">Button</span>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script>
+const hero = document.getElementById('hero');
+document.querySelectorAll('#title .line .in').forEach((l, i) => l.style.setProperty('--i', i));
+function play() { hero.removeAttribute('data-play'); void hero.offsetWidth; hero.setAttribute('data-play', ''); }
+document.getElementById('replay').addEventListener('click', play);
+document.getElementById('speed').addEventListener('change', e => { hero.style.setProperty('--s', e.target.value); play(); });
+play();
+</script>
+</body>
+</html>
