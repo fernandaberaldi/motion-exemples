@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Farmtech — Números</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400&family=Fraunces:opsz,wght@144,500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --text:#4a4f4c;
+    --number:#04221c;
+    --radius:24px;
+    --dur:1800ms;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{
+    background:#fff;
+    font-family:Inter,system-ui,sans-serif;
+    min-height:100vh;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;
+    padding:48px 16px;gap:32px;
+  }
+  .grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:16px;
+    width:100%;max-width:1288px;
+  }
+  .card{
+    position:relative;overflow:hidden;
+    border-radius:var(--radius);
+    aspect-ratio:310/406;
+    padding:32px;
+    display:flex;flex-direction:column;justify-content:space-between;
+    background:#e3eedb;
+    opacity:0;transform:translateY(24px);
+    transition:opacity .7s cubic-bezier(.2,.7,.2,1), transform .7s cubic-bezier(.2,.7,.2,1);
+  }
+  .card.in{opacity:1;transform:none}
+  /* fundo verde desfocado (simula foto blur) */
+  .card::before{
+    content:"";position:absolute;inset:-20%;
+    background:
+      radial-gradient(40% 30% at 25% 70%, #c9dfbf 0%, transparent 70%),
+      radial-gradient(30% 45% at 70% 55%, #d6e8cd 0%, transparent 70%),
+      radial-gradient(25% 20% at 55% 85%, #eef4e2 0%, transparent 70%),
+      radial-gradient(35% 50% at 90% 30%, #cfe2c6 0%, transparent 70%),
+      linear-gradient(160deg,#dcebd5,#d2e4c8 60%,#e6f0df);
+    filter:blur(24px);
+    z-index:0;
+  }
+  .card:nth-child(2)::before{transform:scaleX(-1)}
+  .card:nth-child(3)::before{transform:rotate(8deg)}
+  .card:nth-child(4)::before{transform:scale(1.1) rotate(-6deg)}
+  /* véu branco no topo */
+  .card::after{
+    content:"";position:absolute;inset:0;
+    background:linear-gradient(180deg,#fafafa 0%,rgba(250,250,250,.9) 18%,rgba(250,250,250,0) 34%);
+    z-index:0;
+  }
+  .label,.number{position:relative;z-index:1}
+  .label{
+    color:var(--text);
+    font-size:clamp(14px,1.4vw,18px);
+    line-height:1.55;letter-spacing:.01em;
+    max-width:260px;
+  }
+  .number{
+    font-family:Fraunces,Georgia,serif;
+    font-variation-settings:"opsz" 144;
+    font-weight:500;
+    color:var(--number);
+    font-size:clamp(36px,4.6vw,60px);
+    line-height:1;letter-spacing:-.02em;
+    white-space:nowrap;
+    font-variant-numeric:tabular-nums;
+  }
+  .replay{
+    font:inherit;font-size:14px;color:var(--number);
+    background:none;border:1px solid #cfd8d2;border-radius:999px;
+    padding:8px 18px;cursor:pointer;
+  }
+  .replay:hover{background:#f2f6f2}
+  @media (max-width:900px){.grid{grid-template-columns:repeat(2,1fr)}}
+  @media (max-width:520px){.grid{grid-template-columns:1fr}.card{aspect-ratio:auto;min-height:260px}}
+</style>
+</head>
+<body>
+
+<section class="grid" id="stats">
+  <article class="card">
+    <p class="label">viabilizados em crédito para o agro desde 2017.</p>
+    <p class="number" data-prefix="+" data-to="30" data-suffix=" bi">+0 bi</p>
+  </article>
+  <article class="card">
+    <p class="label">da cadeia de insumos ao seu alcance.</p>
+    <p class="number" data-prefix="~" data-to="85" data-suffix="%">~0%</p>
+  </article>
+  <article class="card">
+    <p class="label">clientes beneficiados com o crédito da Farmtech.</p>
+    <p class="number" data-prefix="+" data-to="32" data-suffix=" mil">+0 mil</p>
+  </article>
+  <article class="card">
+    <p class="label">operações de desembolso.</p>
+    <p class="number" data-prefix="+" data-to="330" data-suffix=" mil">+0 mil</p>
+  </article>
+</section>
+
+<button class="replay" id="replay">↻ Repetir animação</button>
+
+<script>
+  const cards = [...document.querySelectorAll('.card')];
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const DUR = 1800, STAGGER = 140;
+  const easeOut = t => 1 - Math.pow(1 - t, 4); // easeOutQuart
+  let raf = [];
+
+  function render(el, v){
+    el.textContent = el.dataset.prefix + v + el.dataset.suffix;
+  }
+
+  function play(){
+    raf.forEach(cancelAnimationFrame); raf = [];
+    cards.forEach((card, i) => {
+      const num = card.querySelector('.number');
+      const to = +num.dataset.to;
+      card.classList.remove('in');
+      render(num, 0);
+      void card.offsetWidth; // reinicia transição
+      if (reduce){ card.classList.add('in'); render(num, to); return; }
+      setTimeout(() => {
+        card.classList.add('in');
+        const start = performance.now();
+        const tick = now => {
+          const t = Math.min((now - start) / DUR, 1);
+          render(num, Math.round(easeOut(t) * to));
+          if (t < 1) raf[i] = requestAnimationFrame(tick);
+        };
+        raf[i] = requestAnimationFrame(tick);
+      }, i * STAGGER);
+    });
+  }
+
+  // dispara quando a seção entra na tela
+  const io = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting){ play(); io.disconnect(); }
+  }, { threshold: .35 });
+  io.observe(document.getElementById('stats'));
+
+  document.getElementById('replay').addEventListener('click', play);
+</script>
+</body>
+</html>
